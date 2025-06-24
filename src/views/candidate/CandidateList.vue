@@ -84,7 +84,7 @@
                 <div class="flex items-center space-x-1 justify-end">
                   <button @click="openToggleAssignUserPopup(candidate.id)" class="btn bg-black !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'administrator')">
                     <PlusIcon class="block h-6 w-6 text-white mr-1" />
-                    <span class="text-white">Gán NV</span>
+                    <span class="text-white">Gán nhân viên</span>
                   </button>
                   <button @click="editCandidate(candidate)" class="btn btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'edit')">
                     <PencilAltIcon class="block h-6 w-6 text-white mr-1" />
@@ -331,23 +331,16 @@ watch(
 
 /* START: Thông tin gán Ứng viên cho Nhân viên */
 const handleAssignUsers = async() => { // Gán các thành viên cho ứng viên
-  console.log('Ứng viên đã chọn: ', selectedCandidateId.value);
-  console.log('Danh sách nhân viên: ', selectedUsersAssign.value);
-  
-  if( !selectedCandidateId.value || selectedUsersAssign.value.length === 0) {
-    toastr.error('Vui lòng chọn nhân viên để gán.')
-    return
-  } else {
-    try {
-      const payload = {
-        candidate_id: selectedCandidateId.value,
-        users: selectedUsersAssign.value,
-      }
-      const res = await store.dispatch('candidates/assignCandidateToUser', payload)
-      toastr.success(res.message)
-    } catch (error) {
-      console.log('Lỗi khi tạo: ', error)
+  try {
+    const payload = {
+      candidate_id: selectedCandidateId.value,
+      users: selectedUsersAssign.value,
     }
+    console.log(payload)
+    const res = await store.dispatch('candidates/assignCandidateToUser', payload)
+    toastr.success(res.message)
+  } catch (error) {
+    console.log('Lỗi khi tạo: ', error)
   }
 }
 
@@ -368,10 +361,17 @@ const openToggleAssignUserPopup = (candidateId) => { // Hiển thị Form
     selectedCandidateId.value = candidateId
     selectedCandidateFullName.value = `${candidate.code} - ${candidate.full_name}`
   }
+
+  // Cập nhật nhân viên đã có
+  console.log(candidate.users);
+  if( candidate.users.length > 0 ) {
+    selectedUsersAssign.value = candidate.users
+  }
+
   toggleAssignUserPopup.value = true
 }
 
-const closeToggleAssignUserPopup = () => { // Đóng Rorm
+const closeToggleAssignUserPopup = () => { // Đóng Form
   usersAssign.value = [];
   selectedUsersAssign.value = []
   toggleAssignUserPopup.value = false

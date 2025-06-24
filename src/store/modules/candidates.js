@@ -45,6 +45,10 @@ export default {
         async assignCandidateToUser({ commit }, payload) {
             try {
                 const { data } = await axiosInstance.post('candidates/add-user', payload);
+                // Nếu response có trả về candidate đã được cập nhật
+                if (data.candidate) {
+                    commit('updateCandidates', data.candidate);
+                }
                 return data;
             } catch (error) {
                 throw error;
