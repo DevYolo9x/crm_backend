@@ -26,22 +26,58 @@
     </div>
     <div class="grid md:grid-cols-12 gap-2">
       <div class="md:col-span-2">
-        <VueMultiselect class="flex-1" v-model="selectedUserFilter" :options="users" :searchable="true" label="name" track-by="id" placeholder="Tìm kiếm người tạo" :loading="userLoading" @search-change="debouncedSearchUsers" @select="selectedUserChangeFilter"></VueMultiselect>
+        <VueMultiselect class="flex-1" v-model="selectedUserFilter" :clearable="true" :multiple="false" :options="users" :searchable="true" label="name" track-by="id" placeholder="Tìm kiếm người tạo" :loading="userLoading" @search-change="debouncedSearchUsers" @select="selectedUserChangeFilter">
+          <template v-if="selectedUserFilter && selectedUserFilter.id !== 0" #caret>
+            <button @click.stop="clearSelectedUserFilter" class="absolute multiselect__clear top-1/2 translate-y-[-50%] z-10 right-[10px] text-[11px]">
+              ✕
+            </button>
+          </template>
+        </VueMultiselect>
       </div>
       <div class="md:col-span-2">
-        <VueMultiselect class="flex-1" v-model="selectedCandidateFilter" :options="candidates" :searchable="true" label="full_name" track-by="id" placeholder="Tìm kiếm ứng viên" :loading="candidateLoading" @search-change="debouncedSearchCandidates" @select="selectedCandidateChangeFilter"></VueMultiselect>
+        <VueMultiselect class="flex-1" v-model="selectedCandidateFilter" :options="candidates" :searchable="true" label="full_name" track-by="id" placeholder="Tìm kiếm ứng viên" :loading="candidateLoading" @search-change="debouncedSearchCandidates" @select="selectedCandidateChangeFilter">
+          <template v-if="selectedCandidateFilter && selectedCandidateFilter.id !== 0" #caret>
+            <button @click.stop="clearSelectedCandidateFilter" class="absolute multiselect__clear top-1/2 translate-y-[-50%] z-10 right-[10px] text-[11px]">
+              ✕
+            </button>
+          </template>
+        </VueMultiselect>
       </div>
       <div class="md:col-span-2">
-        <VueMultiselect class="flex-1" v-model="selectedCustomerFilter" :options="customers" :searchable="true" label="name" track-by="id" placeholder="Tìm kiếm khách hàng" :loading="customerLoading" @search-change="debouncedSearchCustomers" @select="onCustomerChangeFilter"></VueMultiselect>
+        <VueMultiselect class="flex-1" v-model="selectedCustomerFilter" :options="customers" :searchable="true" label="name" track-by="id" placeholder="Tìm kiếm khách hàng" :loading="customerLoading" @search-change="debouncedSearchCustomers" @select="onCustomerChangeFilter">
+          <template v-if="selectedCustomerFilter && selectedCustomerFilter.id !== 0" #caret>
+            <button @click.stop="clearSelectedCustomerFilter" class="absolute multiselect__clear top-1/2 translate-y-[-50%] z-10 right-[10px] text-[11px]">
+              ✕
+            </button>
+          </template>
+        </VueMultiselect>
       </div>
       <div class="md:col-span-2">
-        <VueMultiselect class="flex-1" v-model="selectedStatusFilter" :options="statuses" :taggable="true" label="name" :searchable="true" track-by="" @select="onStatusChangeFilter"></VueMultiselect>
+        <VueMultiselect class="flex-1" v-model="selectedStatusFilter" :options="statuses" :taggable="true" label="name" :searchable="true" track-by="id" @select="onStatusChangeFilter">
+          <template v-if="selectedStatusFilter && selectedStatusFilter.id !== 0" #caret>
+            <button @click.stop="clearSelectedStatusFilter" class="absolute multiselect__clear top-1/2 translate-y-[-50%] z-10 right-[10px] text-[11px]">
+              ✕
+            </button>
+          </template>
+        </VueMultiselect>
       </div>
       <div class="md:col-span-2">
-        <VueMultiselect class="flex-1" v-model="selectedLocationFilter" :options="provinces" :searchable="true" label="name" track-by="id" placeholder="Tìm kiếm địa điểm" @select="onLocationChangeFilter"></VueMultiselect>
+        <VueMultiselect class="flex-1" v-model="selectedLocationFilter" :options="provinces" :searchable="true" label="name" track-by="id" placeholder="Tìm kiếm địa điểm" @select="onLocationChangeFilter">
+          <template v-if="selectedLocationFilter && selectedLocationFilter.id !== 0" #caret>
+            <button @click.stop="clearSelectedLocationFilter" class="absolute multiselect__clear top-1/2 translate-y-[-50%] z-10 right-[10px] text-[11px]">
+              ✕
+            </button>
+          </template>
+        </VueMultiselect>
       </div>
       <div class="md:col-span-2">
-        <VueMultiselect class="flex-1" v-model="selectedResponsibleUserFilter" :options="users" :searchable="true" label="name" track-by="id" placeholder="Tìm kiếm người phụ trách" :loading="userLoading" @search-change="debouncedSearchUsers" @select="onResponsibleUserChangeFilter"></VueMultiselect>
+        <VueMultiselect class="flex-1" v-model="selectedResponsibleUserFilter" :options="users" :searchable="true" label="name" track-by="id" placeholder="Tìm kiếm người phụ trách" :loading="userLoading" @search-change="debouncedSearchUsers" @select="onResponsibleUserChangeFilter">
+          <template v-if="selectedResponsibleUserFilter && selectedResponsibleUserFilter.id !== 0" #caret>
+            <button @click.stop="clearSelectedResponsibleUserFilter" class="absolute multiselect__clear top-1/2 translate-y-[-50%] z-10 right-[10px] text-[11px]">
+              ✕
+            </button>
+          </template>
+        </VueMultiselect>
       </div>
       <div class="md:col-span-2">
         <input type="text" class="form-control flex-1" placeholder="Nhập từ khóa tìm kiếm" v-model="formFilter.keyword" />
@@ -276,6 +312,7 @@ const formFilter = reactive({
   location_id: 0, // Thêm location_id vào bộ lọc
   user_id: 0, // Thêm user_id vào bộ lọc
 })
+
 watch(
   [formFilter],
   debounce(() => {
@@ -309,6 +346,36 @@ const fetchJobs = async (page = 1) => {
   } finally {
     loading.value = false
   }
+}
+
+const clearSelectedUserFilter = () => {
+  selectedUserFilter.value = { id: 0, name: 'Người tạo' }
+  formFilter.created_by = 0
+}
+
+const clearSelectedCandidateFilter = () => {
+  selectedCandidateFilter.value = { id: 0, full_name: 'Ứng viên' }
+  formFilter.candidate_id = 0
+}
+
+const clearSelectedCustomerFilter = () => {
+  selectedCustomerFilter.value = { id: 0, name: 'Chọn khách hàng' }
+  formFilter.customer_id = 0
+}
+
+const clearSelectedStatusFilter = () => {
+  selectedStatusFilter.value = { id: 0, name: 'Trạng thái' }
+  formFilter.status = ''
+}
+
+const clearSelectedLocationFilter = () => {
+  selectedLocationFilter.value = { id: 0, name: 'Địa điểm' }
+  formFilter.location_id = ''
+}
+
+const clearSelectedResponsibleUserFilter = () => {
+  selectedResponsibleUserFilter.value = { id: 0, name: 'Người phụ trách' }
+  formFilter.user_id = 0
 }
 
 onMounted(async () => {

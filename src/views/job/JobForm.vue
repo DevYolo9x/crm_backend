@@ -44,7 +44,7 @@
       </div>
       <div class="space-y-1">
         <label class="block text-sm font-medium">
-          ID JOB
+          Tiêu đề JOB
           <span class="text-red-600">*</span>
         </label>
         <input v-model="form.job_title" class="form-control" placeholder="ID JOB" />

@@ -121,29 +121,30 @@
                 Họ và tên
                 <span class="text-red-600">*</span>
               </label>
-              <input v-model="candidateForm.full_name" type="text" class="form-control" />
+              <input v-model="candidateForm.full_name" type="text" @keydown.enter.prevent class="form-control" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 Số điện thoại
                 <span class="text-red-600">*</span>
+                <span v-if="validationErrors.phoneExists" class="text-red-600 text-[12px] ml-1">{{ validationMessageErrors.phoneExists }}</span>
               </label>
-              <input v-model="candidateForm.phone" type="text" class="form-control" />
+              <input v-model="candidateForm.phone" type="text" @keydown.enter.prevent class="form-control" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 Email
                 <span class="text-red-600">*</span>
+                <span v-if="validationErrors.emailExists" class="text-red-600 text-[12px] ml-1">{{ validationMessageErrors.emailExists }}</span>
               </label>
-              <input v-model="candidateForm.email" type="email" class="form-control" />
+              <input v-model="candidateForm.email" type="email" @keydown.enter.prevent class="form-control" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 Nhóm ngành nghề
                 <span class="text-red-600">*</span>
               </label>
-
-              <VueMultiselect v-model="selectedIndustryId" :options="industries" :taggable="true" label="title" :searchable="true" track-by="id" @select="onIndustryIdChange" placeholder="Chọn nhóm ngành nghề"></VueMultiselect>
+              <VueMultiselect v-model="selectedIndustryId" :multiple="true" :options="industries" :taggable="true" label="title" :searchable="true" track-by="id" @select="onIndustryIdChange" placeholder="Chọn nhóm ngành nghề"></VueMultiselect>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Học vấn</label>
@@ -314,6 +315,16 @@ const candidateForm = ref({
 const selectedUsersAssign =  ref([]) // Job được chọn để gán
 const usersAssign = ref([])
 
+const validationErrors = reactive({
+  phoneExists: false,
+  emailExists: false,
+})
+
+const validationMessageErrors = reactive({
+  phoneExists: '',
+  emailExists: '',
+})
+
 // Danh sách jobs
 const formFilter = reactive({
   keyword: '',
@@ -328,6 +339,38 @@ watch(
     fetchCandidates()
   }, 300)
 )
+
+/* START: Check thông tin tồn tại */
+const checkExists = async () => {
+  const { phone, email } = candidateForm.value
+  if (!phone && !email) return // Không cần gọi nếu rỗng
+
+  try {
+    const res = await axiosInstance.get('candidates/check-exists', {
+      params: { phone, email }
+    })
+    validationErrors.emailExists = res.data.email.status
+    validationErrors.phoneExists = res.data.phone.status
+
+    validationMessageErrors.phoneExists = res.data.phone.message
+    validationMessageErrors.emailExists = res.data.email.message
+  } catch (error) {
+    console.error('Lỗi khi kiểm tra tồn tại:', error)
+  }
+}
+
+// Debounce để tránh spam API
+const debouncedCheck = debounce(() => {
+  checkExists()
+}, 500)
+
+// Watch thay đổi phone & email
+watch(
+  () => [candidateForm.value.phone, candidateForm.value.email],
+  debouncedCheck
+)
+
+/* END */
 
 /* START: Thông tin gán Ứng viên cho Nhân viên */
 const handleAssignUsers = async() => { // Gán các thành viên cho ứng viên
