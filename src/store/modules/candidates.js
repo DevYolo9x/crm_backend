@@ -75,6 +75,7 @@ export default {
         },
         async addCandidate({ commit }, payload) {
             try {
+                console.log(payload)
                 const { data } = await axiosInstance.post('candidates', payload);
                 commit('addCandidates', data.candidate);
                 return data;

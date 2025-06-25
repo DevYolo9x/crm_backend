@@ -286,7 +286,7 @@ const selectedIndustryFilter = ref(null)
 const selectedUserFilter = ref(null)
 const selectedLanguageFilter = ref(null) // Thêm bộ lọc ngoại ngữ
 const selectedDesiredLocationsFilter = ref([]) // Thêm bộ lọc khu vực mong muốn
-const selectedIndustryId = ref(null)
+const selectedIndustryId = ref([])
 const selectedEducation = ref(null)
 const selectedLanguage = ref(null)
 const selectedCurrentLocation = ref(null)
@@ -302,7 +302,7 @@ const candidateForm = ref({
   full_name: '',
   phone: '',
   email: '',
-  industry_id: '',
+  industry_id: [],
   education: '',
   language: '',
   language_other: '',
@@ -550,7 +550,8 @@ const closeCandidateDetail = () => {
 
 const editCandidate = (candidate) => {
   selectedCandidate.value = candidate
-  selectedIndustryId.value = industries.value.find((c) => c.id == candidate.industry_id) || null
+  //selectedIndustryId.value = industries.value.find((c) => c.id == candidate.industry_id) || null
+  selectedIndustryId.value = candidate.industry_id || []
   selectedEducation.value = educations.value.find((c) => c.id == candidate.education) || null
   selectedLanguage.value = languages.value.find((c) => c.id == candidate.language) || null
   selectedCurrentLocation.value = provinces.value.find((c) => c.id == candidate.current_location) || null
@@ -576,7 +577,8 @@ const onDesiredLocationsChangeFilter = () => {
   formFilter.desired_locations = selectedDesiredLocationsFilter.value ? selectedDesiredLocationsFilter.value.map((loc) => loc.id) : []
 }
 const onIndustryIdChange = () => {
-  candidateForm.value.industry_id = selectedIndustryId.value?.id || ''
+  //candidateForm.value.industry_id = selectedIndustryId.value?.id || ''
+  candidateForm.value.industry_id = selectedIndustryId.value || []
 }
 
 const onDesiredLocationChange = () => {
@@ -637,12 +639,15 @@ const handleSubmit = async () => {
   loading.value = true
   try {
     const action = selectedCandidate.value ? 'candidates/updateCandidate' : 'candidates/addCandidate'
+    const industryIds = candidateForm.value.industry_id.map(item => item.id) || [];
     const formData = new FormData()
     formData.append('id', candidateForm.value.id || 0)
     formData.append('full_name', candidateForm.value.full_name)
     formData.append('email', candidateForm.value.email)
     formData.append('phone', candidateForm.value.phone)
-    formData.append('industry_id', candidateForm.value.industry_id)
+    industryIds.forEach(id => {
+      formData.append('industry_id[]', id);
+    });
     formData.append('education', candidateForm.value.education)
     formData.append('language', candidateForm.value.language)
     formData.append('language_other', candidateForm.value.language_other)
@@ -674,6 +679,7 @@ const handleSubmit = async () => {
     selectedCandidate.value = null
     closeModal()
   } catch (error) {
+    console.log(error)
     handleApiError(error)
   } finally {
     loading.value = false
