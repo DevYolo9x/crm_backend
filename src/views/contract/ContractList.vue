@@ -21,10 +21,22 @@
     <div class="flex items-center justify-end">
       <div class="grid md:grid-cols-7 space-x-1">
         <div class="md:col-span-2">
-          <VueMultiselect v-if="users && users.length > 0" class="flex-1" v-model="selectedUserFilter" :options="users" :taggable="true" label="name" :searchable="true" track-by="id" @select="onUserChangeFilter"></VueMultiselect>
+          <VueMultiselect v-if="users && users.length > 0" class="flex-1" v-model="selectedUserFilter" :options="users" :taggable="true" label="name" :searchable="true" track-by="id" @select="onUserChangeFilter">
+            <template v-if="selectedUserFilter && selectedUserFilter.id !== 0" #caret>
+              <button @click.stop="clearSelectedUserFilter" class="absolute multiselect__clear top-1/2 translate-y-[-50%] z-10 right-[10px] text-[11px]">
+                ✕
+              </button>
+            </template>
+          </VueMultiselect>
         </div>
         <div class="md:col-span-2">
-          <VueMultiselect class="flex-1" v-model="selectedCustomerFilter" :options="customers" :taggable="true" label="name" :searchable="true" track-by="id" @select="onCustomerChangeFilter"></VueMultiselect>
+          <VueMultiselect class="flex-1" v-model="selectedCustomerFilter" :options="customers" :taggable="true" label="name" :searchable="true" track-by="id" @select="onCustomerChangeFilter">
+            <template v-if="selectedCustomerFilter && selectedCustomerFilter.id !== 0" #caret>
+              <button @click.stop="clearSelectedCustomerFilter" class="absolute multiselect__clear top-1/2 translate-y-[-50%] z-10 right-[10px] text-[11px]">
+                ✕
+              </button>
+            </template>
+          </VueMultiselect>
         </div>
         <div :class="can(userPermissions, 'contracts', 'create') ? `md:col-span-2` : `md:col-span-3`">
           <input type="text" class="form-control flex-1" placeholder="Nhập từ khóa tìm kiếm" v-model="formFilter.keyword" />
@@ -169,9 +181,20 @@ const formatVND = (value) => {
 }
 const onUserChangeFilter = () => {
   formFilter.created_by = selectedUserFilter.value.id
+  formFilter.created_by = 0
 }
 const onCustomerChangeFilter = () => {
   formFilter.customer_id = selectedCustomerFilter.value.id
+  formFilter.customer_id = 0
+}
+
+// Clear form lọc
+const clearSelectedUserFilter = () => {
+  selectedUserFilter.value = { id: 0, name: 'Người tạo' }
+}
+
+const clearSelectedCustomerFilter = () => {
+  selectedCustomerFilter.value = { id: 0, name: 'Chọn khách hàng' }
 }
 
 watch(

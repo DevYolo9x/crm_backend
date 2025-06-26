@@ -1,4 +1,5 @@
 import axiosInstance from "../../axios";
+import qs from 'qs';
 
 export default {
     namespaced: true,
@@ -66,7 +67,14 @@ export default {
         },
         async fetchCandidates({ commit }, { page = 1, perPage = 20, params = {} } = {}) {
             try {
-                const queryParams = new URLSearchParams({ page, per_page: perPage, ...params }).toString();
+                //const queryParams = new URLSearchParams({ page, per_page: perPage, ...params }).toString();
+                const queryParams = qs.stringify({
+                    page,
+                    per_page: perPage,
+                    ...params
+                  }, {
+                    arrayFormat: 'brackets' // Kết quả: industry_id[]=1&industry_id[]=2
+                  });
                 const { data } = await axiosInstance.get(`candidates?${queryParams}`);
                 commit('setCandidates', data);
             } catch (error) {

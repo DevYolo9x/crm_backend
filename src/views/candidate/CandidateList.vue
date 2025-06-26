@@ -25,13 +25,25 @@
     </div>
     <div class="grid md:grid-cols-12 space-x-1">
       <div class="md:col-span-3">
-        <VueMultiselect v-if="users && users.length > 0" class="flex-1" v-model="selectedUserFilter" :options="users" :taggable="true" label="name" :searchable="true" track-by="id" @select="onUserChangeFilter" placeholder="Người tạo"></VueMultiselect>
+        <VueMultiselect v-if="users && users.length > 0" class="flex-1" v-model="selectedUserFilter" :options="users" :taggable="true" label="name" :searchable="true" track-by="id" @select="onUserChangeFilter" placeholder="Người tạo">
+          <template v-if="selectedUserFilter && selectedUserFilter.id !== 0" #caret>
+            <button @click.stop="clearSelectedUserFilter" class="absolute multiselect__clear top-1/2 translate-y-[-50%] z-10 right-[10px] text-[11px]">
+              ✕
+            </button>
+          </template>
+        </VueMultiselect>
       </div>
       <div class="md:col-span-2">
-        <VueMultiselect class="flex-1" v-model="selectedIndustryFilter" :options="industries" :taggable="true" label="title" :searchable="true" track-by="id" @select="onIndustryChangeFilter" placeholder="Ngành nghề"></VueMultiselect>
+        <VueMultiselect class="flex-1" v-model="selectedIndustryFilter" :multiple="true" :options="industries" :taggable="true" label="title" :searchable="true" track-by="id" placeholder="Ngành nghề"></VueMultiselect>
       </div>
       <div class="md:col-span-2">
-        <VueMultiselect class="flex-1" v-model="selectedLanguageFilter" :options="languages" :taggable="true" label="name" :searchable="true" track-by="id" @select="onLanguageChangeFilter" placeholder="Ngoại ngữ"></VueMultiselect>
+        <VueMultiselect class="flex-1" v-model="selectedLanguageFilter" :options="languages" :taggable="true" label="name" :searchable="true" track-by="id" @select="onLanguageChangeFilter" placeholder="Ngoại ngữ">
+          <template v-if="selectedLanguageFilter && selectedLanguageFilter.id !== 0" #caret>
+            <button @click.stop="clearSelectedLanguageFilter" class="absolute multiselect__clear top-1/2 translate-y-[-50%] z-10 right-[10px] text-[11px]">
+              ✕
+            </button>
+          </template>
+        </VueMultiselect>
       </div>
       <div class="md:col-span-3">
         <VueMultiselect class="flex-1" v-model="selectedDesiredLocationsFilter" :options="provinces" :taggable="true" label="name" :searchable="true" track-by="id" multiple @select="onDesiredLocationsChangeFilter" @remove="onDesiredLocationsChangeFilter" placeholder="Khu vực mong muốn"></VueMultiselect>
@@ -65,7 +77,9 @@
               <br />
               {{ candidate.phone }}
             </td>
-            <td>{{ candidate.industry }}</td>
+            <td>
+              {{ candidate.industry_id.map(item => item.title).join(', ') }}
+            </td>
             <td>{{ candidate.expiry_date }}</td>
             <td>{{ candidate.created_at }}</td>
             <td>{{ candidate.createBy }}</td>
@@ -144,7 +158,7 @@
                 Nhóm ngành nghề
                 <span class="text-red-600">*</span>
               </label>
-              <VueMultiselect v-model="selectedIndustryId" :multiple="true" :options="industries" :taggable="true" label="title" :searchable="true" track-by="id" @select="onIndustryIdChange" placeholder="Chọn nhóm ngành nghề"></VueMultiselect>
+              <VueMultiselect v-model="selectedIndustryId" :multiple="true" :options="industries" :taggable="true" label="title" :searchable="true" track-by="id" placeholder="Chọn nhóm ngành nghề"></VueMultiselect>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Học vấn</label>
@@ -173,19 +187,81 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Tóm tắt kinh nghiệm và nhận xét</label>
             <quill-editor ref="quill" :modules="modules" :toolbar="toolbar" v-model:content="candidateForm.experience_summary" contentType="html" />
           </div>
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">File CV không có thông tin liên hệ</label>
-              <input type="file" @change="onFileChange($event, 'cv_no_contact')" class="form-control-file" />
+          <div>
+            <div class="tabs">
+              <!-- Tab Buttons -->
+              <div class="tab-buttons">
+                <span
+                  v-for="(tab, index) in tabs"
+                  :key="index"
+                  @click="activeTab = tab"
+                  :class="{ 'bg-gray-100': activeTab === tab }" class="cursor-pointer inline-block text-blue-600 hover:text-blue-700 rounded-t-lg py-3 px-4 text-sm font-medium text-center"
+                >
+                  {{ tab }}
+                </span>
+              </div>
+
+              <!-- Tab Content -->
+              <div class="border px-5 py-3 tab-content mb-3">
+                <div v-if="activeTab === 'CV Tiếng Việt'">
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">File CV không có thông tin liên hệ</label>
+                      <input type="file" @change="onFileChange($event, 'cv_no_contact')" class="form-control-file" />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">File CV có thông tin liên hệ</label>
+                      <input type="file" @change="onFileChange($event, 'cv_with_contact')" class="form-control-file" />
+                    </div>
+                  </div>
+                  <p class="font-normal mt-3 text-[12px] text-red-600">* Dung lượng File CV không có thông tin liên hệ không quá 10MB</p>
+                </div>
+                <div v-if="activeTab === 'CV Tiếng Anh'">
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">File CV không có thông tin liên hệ</label>
+                      <input type="file" @change="onFileChange($event, 'cv_no_contact_en')" class="form-control-file" />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">File CV có thông tin liên hệ</label>
+                      <input type="file" @change="onFileChange($event, 'cv_with_contact_en')" class="form-control-file" />
+                    </div>
+                  </div>
+                  <p class="font-normal mt-3 text-[12px] text-red-600">* Dung lượng File CV không có thông tin liên hệ không quá 10MB</p>
+                </div>
+                <div v-if="activeTab === 'CV Tiếng Trung'">
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">File CV không có thông tin liên hệ</label>
+                      <input type="file" @change="onFileChange($event, 'cv_no_contact_cn')" class="form-control-file" />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">File CV có thông tin liên hệ</label>
+                      <input type="file" @change="onFileChange($event, 'cv_with_contact_cn')" class="form-control-file" />
+                    </div>
+                  </div>
+                  <p class="font-normal mt-3 text-[12px] text-red-600">* Dung lượng File CV không có thông tin liên hệ không quá 10MB</p>
+                </div>
+                <div v-if="activeTab === 'CV Tiếng Hàn'">
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">File CV không có thông tin liên hệ</label>
+                      <input type="file" @change="onFileChange($event, 'cv_no_contact_kr')" class="form-control-file" />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">File CV có thông tin liên hệ</label>
+                      <input type="file" @change="onFileChange($event, 'cv_with_contact_kr')" class="form-control-file" />
+                    </div>
+                  </div>
+                  <p class="font-normal mt-3 text-[12px] text-red-600">* Dung lượng File CV không có thông tin liên hệ không quá 10MB</p>
+                </div>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">File CV có thông tin liên hệ</label>
-              <input type="file" @change="onFileChange($event, 'cv_with_contact')" class="form-control-file" />
-            </div>
-          </div>
+        </div>
+          
           <div class="flex justify-end space-x-2">
             <button @click="closeModal" class="btn btn-danger !w-auto">Hủy</button>
-            <button type="submit" class="btn btn-primary !w-auto">{{ selectedCandidate ? 'Cập nhật' : 'Thêm mới' }}</button>
+            <button type="submit" class="btn btn-primary !w-auto" v-if="(!selectedCandidate) || selectedCandidate.permission_update == true">{{ selectedCandidate ? 'Cập nhật' : 'Thêm mới' }}</button>
+          </div>
           </div>
         </form>
       </div>
@@ -275,6 +351,9 @@ const provinces = computed(() => store.getters['candidates/provinces'])
 const educations = computed(() => store.getters['candidates/educations'])
 const languages = computed(() => store.getters['candidates/languages'])
 
+const tabs = ['CV Tiếng Việt', 'CV Tiếng Anh', 'CV Tiếng Trung', 'CV Tiếng Hàn'];
+const activeTab = ref(tabs[0]); // Mặc định tab đầu tiên
+
 const users = ref([])
 const currentPage = ref(1)
 const selectedCandidate = ref(null)
@@ -282,7 +361,7 @@ const isModalOpen = ref(false)
 const isShowCandidate = ref(false)
 const selectedCandidateId = ref(null)
 const loading = ref(false)
-const selectedIndustryFilter = ref(null)
+const selectedIndustryFilter = ref([])
 const selectedUserFilter = ref(null)
 const selectedLanguageFilter = ref(null) // Thêm bộ lọc ngoại ngữ
 const selectedDesiredLocationsFilter = ref([]) // Thêm bộ lọc khu vực mong muốn
@@ -340,14 +419,32 @@ watch(
   }, 300)
 )
 
+watch(
+  selectedIndustryId,
+  debounce(() => {
+    candidateForm.value.industry_id = selectedIndustryId.value
+    console.log(candidateForm.value)
+  }, 300)
+)
+
+const clearSelectedUserFilter = () => {
+  selectedUserFilter.value = { id: 0, name: 'Người tạo' }
+  formFilter.created_by = 0
+}
+
+const clearSelectedLanguageFilter = () => {
+  selectedLanguageFilter.value = ''
+  formFilter.language = ''
+}
+
 /* START: Check thông tin tồn tại */
 const checkExists = async () => {
   const { phone, email } = candidateForm.value
+  const candidate_id = selectedCandidate.value?.id || 0;
   if (!phone && !email) return // Không cần gọi nếu rỗng
-
   try {
     const res = await axiosInstance.get('candidates/check-exists', {
-      params: { phone, email }
+      params: { phone, email, candidate_id }
     })
     validationErrors.emailExists = res.data.email.status
     validationErrors.phoneExists = res.data.phone.status
@@ -369,8 +466,11 @@ watch(
   () => [candidateForm.value.phone, candidateForm.value.email],
   debouncedCheck
 )
-
 /* END */
+
+watch(selectedIndustryFilter, (newVal) => {
+  formFilter.industry_id = newVal.map(i => i.id);
+});
 
 /* START: Thông tin gán Ứng viên cho Nhân viên */
 const handleAssignUsers = async() => { // Gán các thành viên cho ứng viên
@@ -406,7 +506,6 @@ const openToggleAssignUserPopup = (candidateId) => { // Hiển thị Form
   }
 
   // Cập nhật nhân viên đã có
-  console.log(candidate.users);
   if( candidate.users.length > 0 ) {
     selectedUsersAssign.value = candidate.users
   }
@@ -424,7 +523,6 @@ const closeToggleAssignUserPopup = () => { // Đóng Form
   selectedCandidateFullName.value = ''
 }
 /* END */
-
 
 const fetchCandidates = async (page = 1) => {
   loading.value = true
@@ -522,6 +620,10 @@ const showModal = () => {
 const closeModal = () => {
   isModalOpen.value = false
   selectedCandidate.value = null
+  selectedEducation.value = null
+  selectedLanguage.value = null
+  selectedCurrentLocation.value = null
+  selectedIndustryId.value = []
   candidateForm.value = {
     full_name: '',
     phone: '',
@@ -566,8 +668,13 @@ const onIndustryChangeFilter = () => {
   formFilter.industry_id = selectedIndustryFilter.value?.id || 0
 }
 
-const onUserChangeFilter = () => {
+const onUserChangeFilter = (val) => {
   formFilter.created_by = selectedUserFilter.value?.id || 0
+  if( val ){
+    console.log(val)
+  } else {
+    console.log('Rỗng')
+  }
 }
 const onLanguageChangeFilter = () => {
   formFilter.language = selectedLanguageFilter.value?.id || ''
@@ -577,7 +684,6 @@ const onDesiredLocationsChangeFilter = () => {
   formFilter.desired_locations = selectedDesiredLocationsFilter.value ? selectedDesiredLocationsFilter.value.map((loc) => loc.id) : []
 }
 const onIndustryIdChange = () => {
-  //candidateForm.value.industry_id = selectedIndustryId.value?.id || ''
   candidateForm.value.industry_id = selectedIndustryId.value || []
 }
 
@@ -637,6 +743,7 @@ const onFileChange = (event, field) => {
 
 const handleSubmit = async () => {
   loading.value = true
+  console.log(candidateForm.value);
   try {
     const action = selectedCandidate.value ? 'candidates/updateCandidate' : 'candidates/addCandidate'
     const industryIds = candidateForm.value.industry_id.map(item => item.id) || [];

@@ -19,7 +19,9 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Nhóm ngành nghề</label>
-            <VueMultiselect v-model="selectedIndustry" :options="industries" :taggable="true" label="title" track-by="id" disabled placeholder="Chọn nhóm ngành nghề"></VueMultiselect>
+            <!-- <VueMultiselect v-model="selectedIndustry" :options="industries" :taggable="true" label="title" track-by="id" disabled placeholder="Chọn nhóm ngành nghề"></VueMultiselect> -->
+            <VueMultiselect v-model="selectedIndustry" :multiple="true" :options="industries" :taggable="true" label="title" disabled :searchable="true" track-by="id" placeholder="Chọn nhóm ngành nghề"></VueMultiselect>
+
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Học vấn</label>
@@ -90,7 +92,7 @@ const emit = defineEmits(['close'])
 const store = useStore()
 const candidate = ref(null)
 const loading = ref(false)
-const selectedIndustry = ref(null)
+const selectedIndustry = ref([])
 const selectedEducation = ref(null)
 const selectedLanguage = ref(null)
 const selectedCurrentLocation = ref(null)
@@ -109,7 +111,8 @@ const fetchCandidate = async () => {
     candidate.value = data.candidate
 
     // Gán giá trị cho các trường select
-    selectedIndustry.value = industries.value.find((c) => c.id == data.candidate.industry_id) || null
+    //selectedIndustry.value = industries.value.find((c) => c.id == data.candidate.industry_id) || null
+    selectedIndustry.value = data.candidate.industry_id || []
     selectedEducation.value = educations.value.find((c) => c.id == data.candidate.education) || null
     selectedLanguage.value = languages.value.find((c) => c.id == data.candidate.language) || null
     selectedCurrentLocation.value = provinces.value.find((c) => c.id == data.candidate.current_location) || null
