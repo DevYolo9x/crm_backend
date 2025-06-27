@@ -135,6 +135,10 @@ router.beforeEach(async (to, _, next) => {
         await store.dispatch('auth/fetchUserPermissions')
         store.commit('auth/setPermissionsLoaded', true)
     }
+    // Lấy ra danh sách ngôn ngữ
+    if (!store.getters['languages/languages'].length) {
+        await store.dispatch('languages/fetchLanguages')
+    }
     // Check quyền
     if (isAuthenticated && resource && action && !can(store.getters['auth/permissions'], resource, action)) {
         toastr.error(`Bạn không có quyền thực hiện chức năng này`)

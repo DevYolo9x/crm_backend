@@ -42,7 +42,7 @@
         <tbody>
           <tr v-for="(industry, key) in industries" :key="industry.id" class="border-b hover:bg-gray-100">
             <td>{{ key + 1 }}</td>
-            <td class="font-bold">{{ industry.title }}</td>
+            <td class="font-bold">{{ industry.title.vi }}</td>
             <td>{{ industry.created_at }}</td>
             <td>{{ industry.createBy }}</td>
             <td v-if="can(userPermissions, 'industries', 'edit') || can(userPermissions, 'industries', 'destroy')">
@@ -75,13 +75,29 @@
       <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg relative">
         <h2 class="text-lg font-semibold mb-4">{{ selectedIndustry ? 'Cập nhật ngành nghề' : 'Thêm mới ngành nghề' }}</h2>
         <form @submit.prevent="handleSubmit" class="space-y-2">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Tiêu đề
-              <span class="text-red-600">*</span>
-            </label>
-            <input v-model="industryForm.title" type="text" class="form-control" />
+          <!-- Tabs hoặc lựa chọn ngôn ngữ -->
+          <div class="tabs">
+            <button
+              v-for="l in Languages"
+              :key="l.code"
+              @click.prevent="lang = l.code"
+              :class="{ 'bg-gray-100': lang === l.code }" class="cursor-pointer inline-block text-blue-600 hover:text-blue-700 rounded-t-lg py-3 px-4 text-sm font-medium text-center"
+            >
+              {{ l.name }}
+            </button>
           </div>
+          <div class="border px-5 py-3 tab-content mb-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Tiêu đề
+                <span class="text-red-600">*</span>
+              </label>
+              <input v-model="currentFullName" type="text" class="form-control" />
+            </div>
+          </div>
+          <!-- Tabs hoặc lựa chọn ngôn ngữ -->
+          <!-- Debug -->
+          <pre>{{ industryForm }}</pre>
           <div class="flex justify-end space-x-2">
             <button @click="closeModal" class="btn btn-danger !w-auto">Hủy</button>
             <button type="submit" class="btn btn-primary !w-auto">{{ selectedIndustry ? 'Cập nhật' : 'Thêm mới' }}</button>
@@ -105,6 +121,8 @@ import { handleApiError } from '../../helpers/apiErrorHandler'
 import { useToastr } from '../../plugins/toastr'
 import { can } from '../../helpers/permissions' // Import the can helper
 const userPermissions = computed(() => store.getters['auth/permissions'] || {})
+const Languages = computed(() => store.getters['languages/languages'] || {})
+const defaultLanguages = computed(() => store.getters['languages/languageCode'] || 'vi')
 const toastr = useToastr()
 const route = useRoute()
 const store = useStore()
@@ -122,16 +140,22 @@ const showModal = () => {
 const closeModal = () => {
   isModalOpen.value = false
   selectedIndustry.value = null
-  industryForm.value = { title: '' }
+  industryForm.value = { title: {} }
 }
 const editIndustry = (industry) => {
   selectedIndustry.value = industry
-  industryForm.value = { id: industry.id, title: industry.title }
+  industryForm.value = {
+    id: industry.id,
+    title: {
+      ...industry.title
+    }
+  }
+
   showModal()
 }
 
 const perPage = ref(20)
-const industryForm = ref({ title: '' })
+const industryForm = ref({ title: {}})
 const formFilter = reactive({ keyword: '' })
 
 watch(
@@ -140,6 +164,27 @@ watch(
     fetchIndustries()
   }, 300)
 )
+
+
+/* START: Thêm ngôn ngữ */ 
+const lang = ref('vi') // Đặt mặc định Ngôn Ngữ
+
+Languages.value.forEach(code => { // Đồng bộ các key cho Trường thông tin theo ngôn ngữ
+  if (!(code in industryForm.value.title)) {
+    industryForm.value.title[code] = ''
+  }
+})
+
+// Computed dùng v-model để nhập full_name theo ngôn ngữ
+const currentFullName = computed({
+  get() {
+    return industryForm.value.title[lang.value] || ''
+  },
+  set(val) {
+    industryForm.value.title[lang.value] = val
+  }
+})
+/* END: Thêm ngôn ngữ */ 
 
 const fetchIndustries = async (page = 1) => {
   loading.value = true

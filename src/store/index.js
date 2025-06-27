@@ -13,9 +13,11 @@ import industries from './modules/industries'
 import candidates from './modules/candidates'
 import contracts from './modules/contracts'
 import candidateJobs from './modules/candidateJobs'
+import languages from './modules/languages'
 const debug = process.env.NODE_ENV !== 'production'
 export default createStore({
     modules: {
+        languages,
         dashboard,
         auth,
         sidebar,
@@ -29,7 +31,7 @@ export default createStore({
         industries,
         candidates,
         contracts,
-        candidateJobs
+        candidateJobs,
     },
     strict: debug,
     plugins: debug ? [createLogger()] : [],
