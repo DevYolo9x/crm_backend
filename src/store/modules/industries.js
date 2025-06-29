@@ -5,12 +5,16 @@ export default {
     state: {
         industryLists: [],
         industries: [],
+        industriesLang: [],
         pagination: [],
         totalPages: 1,
     },
     mutations: {
         setIndustryLists(state, data) {
             state.industryLists = [{ id: 0, title: 'Chọn nhóm ngành nghề' }, ...data.industries];
+        },
+        setIndustryListsLang(state, data) {
+            state.industriesLang = data.industries;
         },
         setIndustries(state, data) {
             state.industries = data.lists;
@@ -38,6 +42,14 @@ export default {
                 throw error;
             }
         },
+        async fetchIndustryListsLang({ commit }) {
+            try {
+                const { data } = await axiosInstance.get(`industries-lists-lang`);
+                commit('setIndustryListsLang', data);
+            } catch (error) {
+                throw error;
+            }
+        },
         async fetchIndustries({ commit }, { page = 1, perPage = 20, params = {} } = {}) {
             try {
                 const queryParams = new URLSearchParams({ page, per_page: perPage, ...params }).toString();
@@ -58,7 +70,7 @@ export default {
         },
         async updateIndustry({ commit }, industryData) {
             try {
-                const { data } = await axiosInstance.put(`industries/${industryData.id}`, industryData);
+                const { data } = await axiosInstance.post(`industries/${industryData.id}`, industryData);
                 commit('updateIndustries', data.industry);
                 return data;
             } catch (error) {
@@ -78,6 +90,7 @@ export default {
     getters: {
         industryLists: (state) => state.industryLists,
         industries: (state) => state.industries,
+        industriesLang: (state) => state.industriesLang,
         pagination: (state) => state.pagination,
         totalPages: (state) => state.totalPages,
     },

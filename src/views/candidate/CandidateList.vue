@@ -78,7 +78,7 @@
               {{ candidate.phone }}
             </td>
             <td>
-              {{ candidate.industry_id.map(item => item.title).join(', ') }}
+              {{ candidate.industry_id.vi?.map(item => item.title).join(', ') }}
             </td>
             <td>{{ candidate.expiry_date }}</td>
             <td>{{ candidate.created_at }}</td>
@@ -173,15 +173,15 @@
                       Nhóm ngành nghề
                       <span class="text-red-600">*</span>
                     </label>
-                    <VueMultiselect v-model="selectedIndustryId" :multiple="true" :options="industries" :taggable="true" label="title" :searchable="true" track-by="id" placeholder="Chọn nhóm ngành nghề"></VueMultiselect>
+                    <VueMultiselect v-model="currentIndustry" :multiple="true" :options="industries" :taggable="true" label="title" :searchable="true" track-by="id" placeholder="Chọn nhóm ngành nghề"></VueMultiselect>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Học vấn</label>
-                    <VueMultiselect v-model="selectedEducation" :options="educations" :taggable="true" label="name" :searchable="true" track-by="id" @select="onEducationChange" placeholder="Chọn học vấn"></VueMultiselect>
+                    <VueMultiselect v-model="currentEducation" :options="educations" :taggable="true" label="name" :searchable="true" track-by="id" placeholder="Chọn học vấn"></VueMultiselect>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Ngoại ngữ</label>
-                    <VueMultiselect v-model="selectedLanguage" :options="languages" :taggable="true" label="name" :searchable="true" track-by="id" @select="onLanguageChange" placeholder="Chọn ngoại ngữ"></VueMultiselect>
+                    <VueMultiselect v-model="currentLanguage" :options="languages" :taggable="true" label="name" :searchable="true" track-by="id" placeholder="Chọn ngoại ngữ"></VueMultiselect>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -199,20 +199,36 @@
                   </div>
                 </div>
                 <!-- Mô tả -->
-                <div>
+                <div class="mt-3">
                   <label class="block text-sm font-medium text-gray-700 mb-1">Tóm tắt kinh nghiệm và nhận xét</label>
-                  <quill-editor ref="quill" :modules="modules" :toolbar="toolbar" v-model:content="candidateForm.experience_summary" contentType="html" />
+                  <quill-editor ref="quill" :modules="modules" :toolbar="toolbar" v-model:content="currentExperienceSummary" contentType="html" :key="lang" />
                 </div>
                 <!-- Thông tin CV -->
-                <div>
+                <div class="mt-3">
                   <div class="grid grid-cols-2 gap-4">
                     <div>
                       <label class="block text-sm font-medium text-gray-700 mb-1">File CV không có thông tin liên hệ</label>
                       <input type="file" @change="onFileChange($event, 'cv_no_contact')" class="form-control-file" />
+                      <a
+                        v-if="candidateForm.file_cv?.[lang]?.cv_no_contact?.url"
+                        :href="candidateForm.file_cv[lang].cv_no_contact.url"
+                        target="_blank" class="font-medium inline-block mt-3 underline text-[13px]"
+                      >
+                        <svg width="18px" height="18px" class="inline-block mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Interface / Download"> <path id="Vector" d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>
+                        {{ getFileName(candidateForm.file_cv[lang].cv_no_contact.url) }}
+                      </a>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 mb-1">File CV có thông tin liên hệ</label>
                       <input type="file" @change="onFileChange($event, 'cv_with_contact')" class="form-control-file" />
+                      <a
+                        v-if="candidateForm.file_cv?.[lang]?.cv_no_contact?.url"
+                        :href="candidateForm.file_cv[lang].cv_no_contact.url"
+                        target="_blank" class="font-medium inline-block mt-3 underline text-[13px]"
+                      >
+                        <svg width="18px" height="18px" class="inline-block mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Interface / Download"> <path id="Vector" d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>
+                        {{ getFileName(candidateForm.file_cv[lang].cv_no_contact.url) }}
+                      </a>
                     </div>
                   </div>
                   <p class="font-normal mt-3 text-[12px] text-red-600">* Dung lượng File CV không có thông tin liên hệ không quá 10MB</p>
@@ -289,7 +305,7 @@ import { ref, onMounted, computed, reactive, watch } from 'vue'
 import { useStore } from 'vuex'
 import { debounce } from 'lodash'
 import { useRoute } from 'vue-router'
-// import { Languages } from '../../store/modules/languages'
+import { cloneDeep } from 'lodash'
 
 import Swal from 'sweetalert2'
 import Title from '../../components/Title.vue'
@@ -314,13 +330,18 @@ const toastr = useToastr()
 const route = useRoute()
 const store = useStore()
 
+
 const candidates = computed(() => store.getters['candidates/candidates'])
 const pagination = computed(() => store.getters['candidates/pagination'])
-const industries = computed(() => store.getters['industries/industryLists'])
 const provinces = computed(() => store.getters['candidates/provinces'])
-const educations = computed(() => store.getters['candidates/educations'])
-const languages = computed(() => store.getters['candidates/languages'])
+const allEducations = computed(() => store.state.candidates.educations || {})
+const allLanguages = computed(() => store.state.candidates.languages || {})
+const educations = ref([])
+const languages = ref([])
 
+const allIndustries = computed(() => store.state.industries.industriesLang || {})
+
+const industries = ref([])
 const users = ref([])
 const currentPage = ref(1)
 const selectedCandidate = ref(null)
@@ -349,17 +370,30 @@ const candidateForm = ref({
   phone: '',
   email: '',
   industry_id: [],
-  education: '',
-  language: '',
+  education: {},
+  language: {},
   language_other: '',
   current_location: '',
   desired_location: [],
-  experience_summary: '',
+  experience_summary: {},
+  file_cv: {},
   cv_no_contact: null,
   cv_with_contact: null,
 })
 const selectedUsersAssign =  ref([]) // Job được chọn để gán
 const usersAssign = ref([])
+
+
+
+const noContactFileName = computed(() => {
+  const url = candidateForm.value.file_cv?.[lang]?.cv_no_contact?.url
+  return url ? url.split('/').pop() : ''
+})
+
+const withContactFileName = computed(() => {
+  const url = candidateForm.value.file_cv?.[lang]?.cv_with_contact?.url
+  return url ? url.split('/').pop() : ''
+})
 
 /* START: Thêm ngôn ngữ */ 
 const lang = ref('vi') // Đặt mặc định Ngôn Ngữ
@@ -370,8 +404,19 @@ Languages.value.forEach(code => { // Đồng bộ các key cho Trường thông 
   }
 })
 
-// Computed dùng v-model để nhập full_name theo ngôn ngữ
-const currentFullName = computed({
+watch(lang, (newLang) => {
+  industries.value = allIndustries.value[newLang]
+  educations.value = allEducations.value[newLang]
+  languages.value = allLanguages.value[newLang]
+
+   // ✅ Load lại đường dẫn file đã có nếu tồn tại
+  const fileData = candidateForm.value.file_cv?.[newLang] || {}
+  candidateForm.value.cv_no_contact = fileData.cv_no_contact || null
+  candidateForm.value.cv_with_contact = fileData.cv_with_contact || null
+})
+
+// Computed dùng v-model để nhập các trường được gán theo ngôn ngữ
+const currentFullName = computed({ // Họ tên
   get() {
     return candidateForm.value.full_name[lang.value] || ''
   },
@@ -379,6 +424,93 @@ const currentFullName = computed({
     candidateForm.value.full_name[lang.value] = val
   }
 })
+
+const currentIndustry = computed({ // Nhóm ngành nghề
+  get() {
+    return candidateForm.value.industry_id[lang.value] || []
+  },
+  set(newVal) {
+    const selectedIds = newVal.map(i => i.id)
+    const allIndustries = store.state.industries.industriesLang || {}
+    // Duyệt qua tất cả ngôn ngữ và đồng bộ theo ID
+    const synced = {}
+    for (const locale in allIndustries) {
+      const options = allIndustries[locale] || []
+      synced[locale] = options.filter(opt => selectedIds.includes(opt.id))
+    }
+    candidateForm.value.industry_id = synced
+  }
+})
+
+const currentEducation = computed({ // Học vấn
+  get() {
+    return candidateForm.value.education[lang.value] || {}
+  },
+  set(val) {
+    candidateForm.value.education = {
+      ...candidateForm.value.education,
+      [lang.value]: val
+    }
+  }
+})
+
+const currentLanguage = computed({ // Ngoại ngữ
+  get() {
+    return candidateForm.value.language[lang.value] || {}
+  },
+  set(val) {
+    candidateForm.value.language = {
+      ...candidateForm.value.language,
+      [lang.value]: val
+    }
+  }
+})
+
+const currentExperienceSummary = computed({
+  get() {
+    return candidateForm.value.experience_summary[lang.value] || ''
+  },
+  set(val) {
+    candidateForm.value.experience_summary = {
+      ...candidateForm.value.experience_summary,
+      [lang.value]: val
+    }
+  }
+})
+
+const getFileName = (url) => {
+  try {
+    return decodeURIComponent(url.split('/').pop())
+  } catch {
+    return url
+  }
+}
+
+// const onFileChange = (event, field) => {
+//   candidateForm.value[field] = event.target.files[0]
+// }
+const onFileChange = (event, field) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  // Đảm bảo tồn tại object file_cv và file_cv[lang]
+  if (!candidateForm.value.file_cv) candidateForm.value.file_cv = {}
+  if (!candidateForm.value.file_cv[lang.value] || typeof candidateForm.value.file_cv[lang.value] !== 'object') {
+    candidateForm.value.file_cv[lang.value] = {}
+  }
+
+  // Nếu field đang là string (hoặc chưa tồn tại), gán lại là object
+  if (
+    !candidateForm.value.file_cv[lang.value][field] ||
+    typeof candidateForm.value.file_cv[lang.value][field] !== 'object'
+  ) {
+    candidateForm.value.file_cv[lang.value][field] = {}
+  }
+
+  // Gán file
+  candidateForm.value.file_cv[lang.value][field].file = file
+}
+
 /* END: Thêm ngôn ngữ */ 
 
 // Danh sách jobs
@@ -400,7 +532,6 @@ watch(
   selectedIndustryId,
   debounce(() => {
     candidateForm.value.industry_id = selectedIndustryId.value
-    console.log(candidateForm.value)
   }, 300)
 )
 
@@ -468,7 +599,6 @@ const handleAssignUsers = async() => { // Gán các thành viên cho ứng viên
       candidate_id: selectedCandidateId.value,
       users: selectedUsersAssign.value,
     }
-    console.log(payload)
     const res = await store.dispatch('candidates/assignCandidateToUser', payload)
     toastr.success(res.message)
   } catch (error) {
@@ -666,13 +796,13 @@ const onDesiredLocationChange = () => {
   candidateForm.value.desired_location = selectedDesiredLocation.value ? selectedDesiredLocation.value.map((loc) => loc.id) : []
 }
 
-const onEducationChange = () => {
-  candidateForm.value.education = selectedEducation.value?.id || ''
-}
+// const onEducationChange = () => {
+//   candidateForm.value.education = selectedEducation.value?.id || ''
+// }
 
-const onLanguageChange = () => {
-  candidateForm.value.language = selectedLanguage.value?.id || ''
-}
+// const onLanguageChange = () => {
+//   candidateForm.value.language = selectedLanguage.value?.id || ''
+// }
 
 const onCurrentLocationChange = () => {
   candidateForm.value.current_location = selectedCurrentLocation.value?.id || ''
@@ -712,53 +842,110 @@ const deleteCandidate = async (id) => {
   }
 }
 
-const onFileChange = (event, field) => {
-  candidateForm.value[field] = event.target.files[0]
-}
+// const onFileChange = (event, field) => {
+//   candidateForm.value[field] = event.target.files[0]
+// }
 
 // Chỉnh sửa Bản Ghi
+// const editCandidate = (candidate) => {
+//   selectedCandidate.value = candidate
+//   //selectedIndustryId.value = industries.value.find((c) => c.id == candidate.industry_id) || null
+//   //selectedIndustryId.value = candidate.industry_id || []
+//   //selectedIndustryId.value = candidate.industry_id[lang]?.map(item => item) || [];
+//   //selectedEducation.value = educations.value.find((c) => c.id == candidate.education) || null
+//   //selectedLanguage.value = languages.value.find((c) => c.id == candidate.language) || null
+//   selectedCurrentLocation.value = provinces.value.find((c) => c.id == candidate.current_location) || null
+//   // Lấy desired_locations từ quan hệ
+//   const desiredLocationIds = candidate.desired_locations ? candidate.desired_locations.map((loc) => loc.location_id) : []
+//   selectedDesiredLocation.value = provinces.value.filter((p) => desiredLocationIds.includes(p.id)) || []
+//   candidateForm.value = { ...candidate, file_cv: cloneDeep(candidate.file_cv), cv_no_contact: null, cv_with_contact: null }
+//   educations.value = allEducations.value.vi
+//   industries.value = allIndustries.value.vi
+//   languages.value = allLanguages.value.vi
+//   // currentExperienceSummary.value = candidate.experience_summary.vi
+//   showModal()
+// }
+
+
 const editCandidate = (candidate) => {
   selectedCandidate.value = candidate
-  //selectedIndustryId.value = industries.value.find((c) => c.id == candidate.industry_id) || null
-  selectedIndustryId.value = candidate.industry_id || []
-  selectedEducation.value = educations.value.find((c) => c.id == candidate.education) || null
-  selectedLanguage.value = languages.value.find((c) => c.id == candidate.language) || null
-  selectedCurrentLocation.value = provinces.value.find((c) => c.id == candidate.current_location) || null
-  // Lấy desired_locations từ quan hệ
-  const desiredLocationIds = candidate.desired_locations ? candidate.desired_locations.map((loc) => loc.location_id) : []
-  selectedDesiredLocation.value = provinces.value.filter((p) => desiredLocationIds.includes(p.id)) || []
-  candidateForm.value = { ...candidate, cv_no_contact: null, cv_with_contact: null }
+
+  // Clone toàn bộ tránh đụng vào Vuex
+  const clone = cloneDeep(candidate)
+
+  const fileCV = candidate.file_cv || {}
+  const currentLangCV = fileCV[lang.value] || {}
+
+  // Gán về form
+  candidateForm.value = {
+    id: clone.id || 0,
+    full_name: clone.full_name || {},
+    phone: clone.phone || '',
+    email: clone.email || '',
+    industry_id: clone.industry_id || {},
+    education: clone.education || {},
+    language: clone.language || {},
+    language_other: clone.language_other || '',
+    current_location: clone.current_location || '',
+    desired_location: clone.desired_location || [],
+    experience_summary: clone.experience_summary || {},
+    file_cv: clone.file_cv || {},
+    cv_no_contact: currentLangCV.cv_no_contact || null, // 🔁 dùng để hiển thị tên
+    cv_with_contact: currentLangCV.cv_with_contact || null,
+  }
+
+  // Gán location đã chọn
+  const desiredLocationIds = candidate.desired_locations?.map(loc => loc.location_id) || []
+  selectedDesiredLocation.value = provinces.value.filter(p => desiredLocationIds.includes(p.id)) || []
+
+  // Gán lại các danh sách giáo dục/ngành/ngôn ngữ mặc định
+  educations.value = allEducations.value[lang.value]
+  industries.value = allIndustries.value[lang.value]
+  languages.value = allLanguages.value[lang.value]
+
   showModal()
 }
 
 // Submit Form
 const handleSubmit = async () => {
   loading.value = true
-  console.log(candidateForm.value);
   try {
     const action = selectedCandidate.value ? 'candidates/updateCandidate' : 'candidates/addCandidate'
-    const industryIds = candidateForm.value.industry_id.map(item => item.id) || [];
+    //const industryIds = candidateForm.value.industry_id.map(item => item.id) || [];
     const formData = new FormData()
     formData.append('id', candidateForm.value.id || 0)
-    formData.append('full_name', candidateForm.value.full_name)
-    formData.append('email', candidateForm.value.email)
-    formData.append('phone', candidateForm.value.phone)
-    industryIds.forEach(id => {
-      formData.append('industry_id[]', id);
-    });
-    formData.append('education', candidateForm.value.education)
-    formData.append('language', candidateForm.value.language)
-    formData.append('language_other', candidateForm.value.language_other)
-    formData.append('current_location', candidateForm.value.current_location)
-    formData.append('desired_location', JSON.stringify(candidateForm.value.desired_location))
-    formData.append('experience_summary', candidateForm.value.experience_summary)
-    if (candidateForm.value.cv_no_contact) {
-      formData.append('cv_no_contact', candidateForm.value.cv_no_contact)
-    }
-    if (candidateForm.value.cv_with_contact) {
-      formData.append('cv_with_contact', candidateForm.value.cv_with_contact)
-    }
-    const data = await store.dispatch(action, formData)
+    formData.append('phone', candidateForm.phone || '');
+    formData.append('email', candidateForm.email || '');
+    formData.append('language_other', candidateForm.language_other || '');
+    formData.append('current_location', candidateForm.current_location || '');
+    formData.append('desired_location', JSON.stringify(candidateForm.desired_location || []));
+
+    // Dạng object cần stringify lại
+    formData.append('full_name', JSON.stringify(candidateForm.full_name));
+    formData.append('industry_id', JSON.stringify(candidateForm.industry_id));
+    formData.append('education', JSON.stringify(candidateForm.education));
+    formData.append('language', JSON.stringify(candidateForm.language));
+    formData.append('experience_summary', JSON.stringify(candidateForm.experience_summary));
+    formData.append('file_cv', JSON.stringify(candidateForm.file_cv));
+    formData.append('cv_no_contact', JSON.stringify(candidateForm.cv_no_contact));
+    formData.append('cv_with_contact', JSON.stringify(candidateForm.cv_with_contact));
+    // industryIds.forEach(id => {
+    //   formData.append('industry_id[]', id);
+    // });
+    // formData.append('education', candidateForm.value.education)
+    // formData.append('language', candidateForm.value.language)
+    // formData.append('language_other', candidateForm.value.language_other)
+    // formData.append('current_location', candidateForm.value.current_location)
+    // formData.append('desired_location', JSON.stringify(candidateForm.value.desired_location))
+    // formData.append('experience_summary', candidateForm.value.experience_summary)
+    // if (candidateForm.value.cv_no_contact) {
+    //   formData.append('cv_no_contact', candidateForm.value.cv_no_contact)
+    // }
+    // if (candidateForm.value.cv_with_contact) {
+    //   formData.append('cv_with_contact', candidateForm.value.cv_with_contact)
+    // }
+    formData.append('data', candidateForm.value)
+    const data = await store.dispatch(action, candidateForm.value)
     toastr.success(`${data.message}`)
     candidateForm.value = {
       full_name: '',
@@ -785,6 +972,13 @@ const handleSubmit = async () => {
 }
 
 onMounted(async () => {
-  await Promise.all([store.dispatch('candidates/fetchProvinces'), store.dispatch('candidates/fetchConfigCandidate'), fetchCandidates(), fetchUsers(), await store.dispatch('industries/fetchIndustryLists')])
+  await Promise.all([
+    store.dispatch('candidates/fetchProvinces'), 
+    store.dispatch('candidates/fetchConfigCandidate'), 
+    fetchCandidates(), 
+    fetchUsers(),
+    store.dispatch('industries/fetchIndustryListsLang'),
+    store.dispatch('candidates/fetchConfigCandidate')
+  ])
 })
 </script>

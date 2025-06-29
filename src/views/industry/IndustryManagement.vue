@@ -175,7 +175,7 @@ Languages.value.forEach(code => { // Đồng bộ các key cho Trường thông 
   }
 })
 
-// Computed dùng v-model để nhập full_name theo ngôn ngữ
+// Gán giá trị nếu thay đổi Fullname
 const currentFullName = computed({
   get() {
     return industryForm.value.title[lang.value] || ''

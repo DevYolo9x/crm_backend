@@ -93,8 +93,10 @@ export default {
         },
         async updateCandidate({ commit }, payload) {
             try {
-                let formDataObj = Object.fromEntries(payload.entries());
-                const { data } = await axiosInstance.post(`candidates/${formDataObj.id}`, payload);
+                //let formDataObj = Object.fromEntries(payload.entries());
+                // console.log(formDataObj)
+                // const { data } = await axiosInstance.post(`candidates/${formDataObj.id}`, payload);
+                const { data } = await axiosInstance.post(`candidates/${payload.id}`, payload);
                 commit('updateCandidates', data.candidate);
                 return data;
             } catch (error) {
