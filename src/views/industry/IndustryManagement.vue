@@ -135,6 +135,7 @@ const isModalOpen = ref(false)
 const loading = ref(false)
 
 const showModal = () => {
+  industryForm.value.title = selectedIndustry.value?.title || {}
   isModalOpen.value = true
 }
 const closeModal = () => {

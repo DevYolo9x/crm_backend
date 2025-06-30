@@ -71,7 +71,7 @@
             <td>{{ key + 1 }}</td>
             <td class="font-bold text-blue-600">{{ candidate.code }}</td>
             <td class="">
-              <span class="font-bold">{{ candidate.full_name }}</span>
+              <span class="font-bold">{{ candidate.full_name.vi }}</span>
               <br />
               {{ candidate.email }}
               <br />
@@ -209,26 +209,32 @@
                     <div>
                       <label class="block text-sm font-medium text-gray-700 mb-1">File CV không có thông tin liên hệ</label>
                       <input type="file" @change="onFileChange($event, 'cv_no_contact')" class="form-control-file" />
-                      <a
+                      <!-- <a
                         v-if="candidateForm.file_cv?.[lang]?.cv_no_contact?.url"
                         :href="candidateForm.file_cv[lang].cv_no_contact.url"
                         target="_blank" class="font-medium inline-block mt-3 underline text-[13px]"
                       >
                         <svg width="18px" height="18px" class="inline-block mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Interface / Download"> <path id="Vector" d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>
                         {{ getFileName(candidateForm.file_cv[lang].cv_no_contact.url) }}
-                      </a>
+                      </a> -->
+                      <div v-if="candidateForm.file_cv?.[lang]?.cv_no_contact?.file">
+                        📎 File đã chọn: {{ candidateForm.file_cv[lang].cv_no_contact.file.name }}
+                      </div>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 mb-1">File CV có thông tin liên hệ</label>
                       <input type="file" @change="onFileChange($event, 'cv_with_contact')" class="form-control-file" />
-                      <a
-                        v-if="candidateForm.file_cv?.[lang]?.cv_no_contact?.url"
-                        :href="candidateForm.file_cv[lang].cv_no_contact.url"
+                      <!-- <a
+                        v-if="candidateForm.file_cv?.[lang]?.cv_with_contact?.url"
+                        :href="candidateForm.file_cv[lang].v.url"
                         target="_blank" class="font-medium inline-block mt-3 underline text-[13px]"
                       >
                         <svg width="18px" height="18px" class="inline-block mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Interface / Download"> <path id="Vector" d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>
-                        {{ getFileName(candidateForm.file_cv[lang].cv_no_contact.url) }}
-                      </a>
+                        {{ getFileName(candidateForm.file_cv[lang].cv_with_contact.url) }}
+                      </a> -->
+                      <div v-if="candidateForm.file_cv?.[lang]?.cv_with_contact?.file">
+                        📎 File đã chọn: {{ candidateForm.file_cv[lang].cv_with_contact.file.name }}
+                      </div>
                     </div>
                   </div>
                   <p class="font-normal mt-3 text-[12px] text-red-600">* Dung lượng File CV không có thông tin liên hệ không quá 10MB</p>
@@ -373,7 +379,7 @@ const candidateForm = ref({
   education: {},
   language: {},
   language_other: '',
-  current_location: '',
+  current_location: 0,
   desired_location: [],
   experience_summary: {},
   file_cv: {},
@@ -398,11 +404,33 @@ const withContactFileName = computed(() => {
 /* START: Thêm ngôn ngữ */ 
 const lang = ref('vi') // Đặt mặc định Ngôn Ngữ
 
-Languages.value.forEach(code => { // Đồng bộ các key cho Trường thông tin theo ngôn ngữ
-  if (!(code in candidateForm.value.full_name)) {
-    candidateForm.value.full_name[code] = ''
+// Languages.value.forEach(code => { // Đồng bộ các key cho Trường thông tin theo ngôn ngữ
+//   if (!(code in candidateForm.value.full_name)) {
+//     candidateForm.value.full_name[code] = ''
+//   }
+// })
+
+/* Form data TEst */
+const fileData = ref(null)
+
+const onFileChangeTest = (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  fileData.value = {
+    file,
+    name: file.name,
+    url: URL.createObjectURL(file)
   }
+
+  // Reset input để chọn lại cùng 1 file nếu muốn
+  event.target.value = ''
+}
+
+const isPreviewable = computed(() => {
+  return fileData.value && fileData.value.file.type.includes('pdf')
 })
+/* Form data TEst */
 
 watch(lang, (newLang) => {
   industries.value = allIndustries.value[newLang]
@@ -486,30 +514,35 @@ const getFileName = (url) => {
   }
 }
 
-// const onFileChange = (event, field) => {
-//   candidateForm.value[field] = event.target.files[0]
-// }
+
+/* Cập nhật file */
 const onFileChange = (event, field) => {
   const file = event.target.files[0]
   if (!file) return
 
-  // Đảm bảo tồn tại object file_cv và file_cv[lang]
-  if (!candidateForm.value.file_cv) candidateForm.value.file_cv = {}
-  if (!candidateForm.value.file_cv[lang.value] || typeof candidateForm.value.file_cv[lang.value] !== 'object') {
-    candidateForm.value.file_cv[lang.value] = {}
+  const langCode = lang.value
+
+  // Khởi tạo structure nếu chưa có
+  if (!candidateForm.value.file_cv) {
+    candidateForm.value.file_cv = {}
   }
 
-  // Nếu field đang là string (hoặc chưa tồn tại), gán lại là object
-  if (
-    !candidateForm.value.file_cv[lang.value][field] ||
-    typeof candidateForm.value.file_cv[lang.value][field] !== 'object'
-  ) {
-    candidateForm.value.file_cv[lang.value][field] = {}
+  if (!candidateForm.value.file_cv[langCode]) {
+    candidateForm.value.file_cv[langCode] = {}
   }
 
-  // Gán file
-  candidateForm.value.file_cv[lang.value][field].file = file
+  // Gán object chuẩn
+  candidateForm.value.file_cv[langCode][field] = {
+    file, // ✅ đây là File object
+    url: URL.createObjectURL(file), // ✅ để preview hoặc debug
+    name: file.name // ✅ tiện hiển thị tên
+  }
+
+  console.log(candidateForm.value);
+  // Reset input để có thể chọn lại cùng 1 file
+  event.target.value = ''
 }
+
 
 /* END: Thêm ngôn ngữ */ 
 
@@ -733,6 +766,10 @@ const assignJob = async () => {
   }
 }
 const showModal = () => {
+  // Gán lại các danh sách giáo dục/ngành/ngôn ngữ mặc định
+  educations.value = allEducations.value[lang.value]
+  industries.value = allIndustries.value[lang.value]
+  languages.value = allLanguages.value[lang.value]
   isModalOpen.value = true
 }
 
@@ -744,16 +781,17 @@ const closeModal = () => {
   selectedCurrentLocation.value = null
   selectedIndustryId.value = []
   candidateForm.value = {
-    full_name: '',
+    full_name: {},
     phone: '',
     email: '',
-    industry_id: '',
-    education: '',
-    language: '',
+    industry_id: [],
+    education: {},
+    language: {},
     language_other: '',
-    current_location: '',
+    current_location: 0,
     desired_location: [],
-    experience_summary: '',
+    experience_summary: {},
+    file_cv: {},
     cv_no_contact: null,
     cv_with_contact: null,
   }
@@ -805,7 +843,7 @@ const onDesiredLocationChange = () => {
 // }
 
 const onCurrentLocationChange = () => {
-  candidateForm.value.current_location = selectedCurrentLocation.value?.id || ''
+  candidateForm.value.current_location = selectedCurrentLocation.value?.id || 0
 }
 
 const deleteCandidate = async (id) => {
@@ -869,9 +907,14 @@ const deleteCandidate = async (id) => {
 
 const editCandidate = (candidate) => {
   selectedCandidate.value = candidate
+  
 
   // Clone toàn bộ tránh đụng vào Vuex
   const clone = cloneDeep(candidate)
+
+  selectedCurrentLocation.value = provinces.value.find(
+    p => p.id === clone.current_location
+  ) || null
 
   const fileCV = candidate.file_cv || {}
   const currentLangCV = fileCV[lang.value] || {}
@@ -886,8 +929,8 @@ const editCandidate = (candidate) => {
     education: clone.education || {},
     language: clone.language || {},
     language_other: clone.language_other || '',
-    current_location: clone.current_location || '',
-    desired_location: clone.desired_location || [],
+    current_location: clone.current_location || 0,
+    desired_location: (clone.desired_locations || []).map(item => item.location_id),
     experience_summary: clone.experience_summary || {},
     file_cv: clone.file_cv || {},
     cv_no_contact: currentLangCV.cv_no_contact || null, // 🔁 dùng để hiển thị tên
@@ -914,21 +957,26 @@ const handleSubmit = async () => {
     //const industryIds = candidateForm.value.industry_id.map(item => item.id) || [];
     const formData = new FormData()
     formData.append('id', candidateForm.value.id || 0)
-    formData.append('phone', candidateForm.phone || '');
-    formData.append('email', candidateForm.email || '');
-    formData.append('language_other', candidateForm.language_other || '');
-    formData.append('current_location', candidateForm.current_location || '');
-    formData.append('desired_location', JSON.stringify(candidateForm.desired_location || []));
+    formData.append('phone', candidateForm.value.phone || '');
+    formData.append('email', candidateForm.value.email || '');
+    formData.append('language_other', candidateForm.value.language_other || '');
+    formData.append('current_location', candidateForm.value.current_location || 0);
+    formData.append('desired_location', JSON.stringify(candidateForm.value.desired_location || []));
 
     // Dạng object cần stringify lại
-    formData.append('full_name', JSON.stringify(candidateForm.full_name));
-    formData.append('industry_id', JSON.stringify(candidateForm.industry_id));
-    formData.append('education', JSON.stringify(candidateForm.education));
-    formData.append('language', JSON.stringify(candidateForm.language));
-    formData.append('experience_summary', JSON.stringify(candidateForm.experience_summary));
-    formData.append('file_cv', JSON.stringify(candidateForm.file_cv));
-    formData.append('cv_no_contact', JSON.stringify(candidateForm.cv_no_contact));
-    formData.append('cv_with_contact', JSON.stringify(candidateForm.cv_with_contact));
+    formData.append('full_name', JSON.stringify(candidateForm.value.full_name));
+    formData.append('industry_id', JSON.stringify(candidateForm.value.industry_id));
+    formData.append('education', JSON.stringify(candidateForm.value.education));
+    formData.append('language', JSON.stringify(candidateForm.value.language));
+    formData.append('experience_summary', JSON.stringify(candidateForm.value.experience_summary));
+
+
+    //formData.append('file_cv', JSON.stringify(candidateForm.file_cv));
+
+    
+
+    //formData.append('cv_no_contact', JSON.stringify(candidateForm.cv_no_contact));
+    //formData.append('cv_with_contact', JSON.stringify(candidateForm.cv_with_contact));
     // industryIds.forEach(id => {
     //   formData.append('industry_id[]', id);
     // });
@@ -944,20 +992,49 @@ const handleSubmit = async () => {
     // if (candidateForm.value.cv_with_contact) {
     //   formData.append('cv_with_contact', candidateForm.value.cv_with_contact)
     // }
-    formData.append('data', candidateForm.value)
-    const data = await store.dispatch(action, candidateForm.value)
+
+    
+
+    // formData.append('data', candidateForm.value)
+
+    Languages.value.forEach(lang => {
+      const langCv = candidateForm.value.file_cv?.[lang.code]
+      if (!langCv) return
+
+      const noContact = langCv.cv_no_contact?.file
+      const withContact = langCv.cv_with_contact?.file
+
+      // console.log('File không liên hệ: ',noContact)
+      // console.log('File có liên hệ: ',withContact)
+
+
+      if (noContact instanceof File) {
+        formData.append(`file_cv[${lang.code}][cv_no_contact]`, noContact)
+
+      }
+
+      if (withContact instanceof File) {
+        formData.append(`file_cv[${lang.code}][cv_with_contact]`, withContact)
+
+      }
+    })
+
+    console.log(formData);
+
+    const data = await store.dispatch(action, formData)
     toastr.success(`${data.message}`)
     candidateForm.value = {
-      full_name: '',
+      full_name: {},
       phone: '',
       email: '',
-      industry_id: '',
-      education: '',
-      language: '',
+      industry_id: [],
+      education: {},
+      language: {},
       language_other: '',
-      current_location: '',
+      current_location: 0,
       desired_location: [],
-      experience_summary: '',
+      experience_summary: {},
+      file_cv: {},
       cv_no_contact: null,
       cv_with_contact: null,
     }

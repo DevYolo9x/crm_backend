@@ -1,4 +1,5 @@
 import axiosInstance from "../../axios";
+import axios from 'axios'
 import qs from 'qs';
 
 export default {
@@ -93,11 +94,18 @@ export default {
         },
         async updateCandidate({ commit }, payload) {
             try {
-                //let formDataObj = Object.fromEntries(payload.entries());
-                // console.log(formDataObj)
-                // const { data } = await axiosInstance.post(`candidates/${formDataObj.id}`, payload);
-                const { data } = await axiosInstance.post(`candidates/${payload.id}`, payload);
-                commit('updateCandidates', data.candidate);
+                let formDataObj = Object.fromEntries(payload.entries());
+                // console.log(payload)
+                const { data } = await axiosInstance.post(`candidates/${formDataObj.id}`, payload);
+
+                // const { data } = await axiosInstance.post(`candidates/${payload.id}`, payload);
+
+                // const { data } = axios.post('http://127.0.0.1:8000/api/v1/candidates/16', payload, {
+                //     headers: {
+                //       Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL3YxL2F1dGgvbG9naW4iLCJpYXQiOjE3NTA5MDEwODYsImV4cCI6MTk2ODYyOTA4NiwibmJmIjoxNzUwOTAxMDg2LCJqdGkiOiJRTTBIekpNSDhBWlI1SUlmIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.PtVZp0u6vELVTqJcRWSYg-1Q2B8ZXf-BuN-QiznBXo8`
+                //     },
+                //   })
+                //commit('updateCandidates', data.candidate);
                 return data;
             } catch (error) {
                 throw error;
