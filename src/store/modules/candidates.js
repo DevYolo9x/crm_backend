@@ -105,7 +105,7 @@ export default {
                 //       Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL3YxL2F1dGgvbG9naW4iLCJpYXQiOjE3NTA5MDEwODYsImV4cCI6MTk2ODYyOTA4NiwibmJmIjoxNzUwOTAxMDg2LCJqdGkiOiJRTTBIekpNSDhBWlI1SUlmIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.PtVZp0u6vELVTqJcRWSYg-1Q2B8ZXf-BuN-QiznBXo8`
                 //     },
                 //   })
-                //commit('updateCandidates', data.candidate);
+                commit('updateCandidates', data.candidate);
                 return data;
             } catch (error) {
                 throw error;
