@@ -86,6 +86,10 @@
             <td v-if="can(userPermissions, 'candidates', 'edit') || can(userPermissions, 'candidates', 'destroy')">
               <div class="whitespace-nowrap flex flex-col space-y-1">
                 <div class="flex items-center space-x-1 justify-end">
+                  <button @click="downloadCandidateCV()" class="btn btn-success !w-auto flex items-center">
+                    <DownloadIcon class="block h-6 w-6 text-white mr-1" />
+                    Xuất file
+                  </button>
                   <button @click="openAssignJobPopup(candidate.id)" class="btn btn-success !w-auto flex items-center">
                     <PlusIcon class="block h-6 w-6 text-white mr-1" />
                     Gán Job
@@ -307,7 +311,7 @@
 </template>
 
 <script setup>
-import { PlusIcon, PencilAltIcon, XCircleIcon, EyeIcon, CloudDownloadIcon } from '@heroicons/vue/solid'
+import { PlusIcon, PencilAltIcon, XCircleIcon, EyeIcon, CloudDownloadIcon, DownloadIcon } from '@heroicons/vue/solid'
 import { ref, onMounted, computed, reactive, watch } from 'vue'
 import { useStore } from 'vuex'
 import { debounce } from 'lodash'
@@ -390,8 +394,6 @@ const candidateForm = ref({
 const selectedUsersAssign =  ref([]) // Job được chọn để gán
 const usersAssign = ref([])
 
-
-
 const noContactFileName = computed(() => {
   const url = candidateForm.value.file_cv?.[lang]?.cv_no_contact?.url
   return url ? url.split('/').pop() : ''
@@ -401,6 +403,12 @@ const withContactFileName = computed(() => {
   const url = candidateForm.value.file_cv?.[lang]?.cv_with_contact?.url
   return url ? url.split('/').pop() : ''
 })
+
+/* Xuất file cv word */
+const downloadCandidateCV = () => {
+  store.dispatch('candidates/downloadCV')
+}
+/* Xuất file cv word */
 
 /* START: Thêm ngôn ngữ */ 
 const lang = ref('vi') // Đặt mặc định Ngôn Ngữ

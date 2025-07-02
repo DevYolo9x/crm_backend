@@ -44,6 +44,21 @@ export default {
         },
     },
     actions: {
+        async downloadCV({ commit }) { // Xuất file word
+            try {
+                const response = await axiosInstance.get(`candidates/export-cv`, {
+                  responseType: 'blob', // Bắt buộc để xử lý file Word
+                })
+            
+                const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+                const link = document.createElement('a')
+                link.href = window.URL.createObjectURL(blob)
+                link.download = `cv_vi.docx`
+                link.click()
+              } catch (error) {
+                console.error('Tải file thất bại:', error)
+              }
+        },
         async assignCandidateToUser({ commit }, payload) {
             try {
                 const { data } = await axiosInstance.post('candidates/add-user', payload);
@@ -95,16 +110,7 @@ export default {
         async updateCandidate({ commit }, payload) {
             try {
                 let formDataObj = Object.fromEntries(payload.entries());
-                // console.log(payload)
                 const { data } = await axiosInstance.post(`candidates/${formDataObj.id}`, payload);
-
-                // const { data } = await axiosInstance.post(`candidates/${payload.id}`, payload);
-
-                // const { data } = axios.post('http://127.0.0.1:8000/api/v1/candidates/16', payload, {
-                //     headers: {
-                //       Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL3YxL2F1dGgvbG9naW4iLCJpYXQiOjE3NTA5MDEwODYsImV4cCI6MTk2ODYyOTA4NiwibmJmIjoxNzUwOTAxMDg2LCJqdGkiOiJRTTBIekpNSDhBWlI1SUlmIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.PtVZp0u6vELVTqJcRWSYg-1Q2B8ZXf-BuN-QiznBXo8`
-                //     },
-                //   })
                 commit('updateCandidates', data.candidate);
                 return data;
             } catch (error) {

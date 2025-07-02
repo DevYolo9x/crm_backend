@@ -54,8 +54,8 @@ const iconMap = {
     </svg>
   </button>
 
-  <aside id="sidebar-multi-level-sidebar" class="fixed top-[64px] left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 shadow-md" aria-label="Sidebar">
-    <div class="element h-full px-3 py-4 bg-gray-50 dark:bg-gray-800">
+  <aside id="sidebar-multi-level-sidebar" class="bg-[#182537] fixed top-[64px] left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 shadow-md" aria-label="Sidebar">
+    <div class="element h-full px-3 py-4 dark:bg-gray-800">
       <ul class="font-medium">
         <li v-for="menu in permittedMenuItems" :key="menu.id">
           <router-link
