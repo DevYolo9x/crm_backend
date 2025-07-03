@@ -202,7 +202,52 @@
                     <VueMultiselect v-model="selectedDesiredLocation" :options="provinces" :taggable="true" label="name" :searchable="true" track-by="id" @select="onDesiredLocationChange" multiple placeholder="Chọn"></VueMultiselect>
                   </div>
                 </div>
-                <!-- Mô tả -->
+                <!-- Quá trình học tập -->
+                <div class=" mt-3">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                      Quá trình học tập
+                  </label>
+                  <div class="bg-gray-200 p-4 rounded-[4px]">
+                    
+                    <div class="" v-for="(item, key) in candidateForm.timeEducation[lang]" :key="key">
+                      <!-- Card 1 -->
+                      <div class="rounded-sm flex bg-white shadow p-3 gap-2 hover:shadow-lg transition delay-150 duration-300 ease-in-out transform mb-2">
+                        <!-- Icon -->
+                        <div class="w-[30px]">
+                          <ClockIcon class="w-6 h-6" />
+                        </div>
+
+                        <div class="">
+                          <!-- Title -->
+                          <div class="col-span-11 xl:-ml-5">
+                            <p class="text-blue-600 font-semibold"> {{ item.title }} </p>
+                          </div>
+                          
+                          <!-- Description -->
+                          <div class="md:col-start-2 col-span-11 xl:-ml-5">
+                            <p class="text-sm text-gray-800 font-light"> {{ item.school }} </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-12 gap-4">
+                      <div class="col-span-4">
+                        <input type="text" v-model="selectedTimeEducation.title" class="form-control" placeholder="Thời gian">
+                      </div>
+                      <div class="col-span-8">
+                        <textarea type="text" v-model="selectedTimeEducation.school" class="form-control" placeholder="Mô tả"></textarea>
+                      </div>
+                    </div>
+                  </div>
+                  <button @click.prevent="addItemTimeEducation" class="bg-blue-600 mt-2 px-3 py-1 text-[12px] text-white">Thêm +</button>
+                </div>
+                <!-- Điểm mạnh -->
+                <div class="mt-3">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Điểm mạnh</label>
+                  <quill-editor ref="quill" :modules="modules" :toolbar="toolbar" v-model:content="currentStrength" contentType="html" :key="lang" />
+                </div>
+                <!-- Kinh nghiệm -->
                 <div class="mt-3">
                   <label class="block text-sm font-medium text-gray-700 mb-1">Tóm tắt kinh nghiệm và nhận xét</label>
                   <quill-editor ref="quill" :modules="modules" :toolbar="toolbar" v-model:content="currentExperienceSummary" contentType="html" :key="lang" />
@@ -243,7 +288,6 @@
                   </div>
                   <p class="font-normal mt-3 text-[12px] text-red-600">* Dung lượng File CV không có thông tin liên hệ không quá 10MB</p>
                 </div>
-                <button @click.prevent>Xuất CV (Word)</button>
              </div>
             <!-- Debug -->
             <pre>{{ candidateForm }}</pre>
@@ -311,7 +355,7 @@
 </template>
 
 <script setup>
-import { PlusIcon, PencilAltIcon, XCircleIcon, EyeIcon, CloudDownloadIcon, DownloadIcon } from '@heroicons/vue/solid'
+import { PlusIcon, PencilAltIcon, XCircleIcon, EyeIcon, CloudDownloadIcon, DownloadIcon, ClockIcon } from '@heroicons/vue/solid'
 import { ref, onMounted, computed, reactive, watch } from 'vue'
 import { useStore } from 'vuex'
 import { debounce } from 'lodash'
@@ -341,7 +385,6 @@ const toastr = useToastr()
 const route = useRoute()
 const store = useStore()
 
-
 const candidates = computed(() => store.getters['candidates/candidates'])
 const pagination = computed(() => store.getters['candidates/pagination'])
 const provinces = computed(() => store.getters['candidates/provinces'])
@@ -365,6 +408,10 @@ const selectedUserFilter = ref(null)
 const selectedLanguageFilter = ref(null) // Thêm bộ lọc ngoại ngữ
 const selectedDesiredLocationsFilter = ref([]) // Thêm bộ lọc khu vực mong muốn
 const selectedIndustryId = ref([])
+const selectedTimeEducation = ref({
+  title: '',
+  school: '',
+}) // Quá trình học tập
 const selectedEducation = ref(null)
 const selectedLanguage = ref(null)
 const selectedCurrentLocation = ref(null)
@@ -387,6 +434,8 @@ const candidateForm = ref({
   current_location: 0,
   desired_location: [],
   experience_summary: {},
+  currentStrength: {},
+  timeEducation: {},
   file_cv: {},
   cv_no_contact: null,
   cv_with_contact: null,
@@ -403,6 +452,7 @@ const withContactFileName = computed(() => {
   const url = candidateForm.value.file_cv?.[lang]?.cv_with_contact?.url
   return url ? url.split('/').pop() : ''
 })
+
 
 /* Xuất file cv word */
 const downloadCandidateCV = () => {
@@ -433,6 +483,27 @@ const currentFullName = computed({ // Họ tên
     candidateForm.value.full_name[lang.value] = val
   }
 })
+
+const addItemTimeEducation = () => {
+  const langKey = lang.value;
+
+  // Khởi tạo mảng nếu chưa có
+  if (!candidateForm.value.timeEducation[langKey]) {
+    candidateForm.value.timeEducation[langKey] = [];
+  }
+
+  // Kiểm tra dữ liệu đầu vào
+  if (selectedTimeEducation.value.title && selectedTimeEducation.value.school) {
+    candidateForm.value.timeEducation[langKey].push({
+      title: selectedTimeEducation.value.title,
+      school: selectedTimeEducation.value.school
+    });
+
+    // Reset nếu muốn
+    selectedTimeEducation.value.title = '';
+    selectedTimeEducation.value.school = '';
+  }
+};
 
 const currentIndustry = computed({ // Nhóm ngành nghề
   get() {
@@ -487,6 +558,18 @@ const currentExperienceSummary = computed({
   }
 })
 
+const currentStrength = computed({
+  get() {
+    return candidateForm.value.currentStrength[lang.value] || ''
+  },
+  set(val) {
+    candidateForm.value.currentStrength = {
+      ...candidateForm.value.currentStrength,
+      [lang.value]: val
+    }
+  }
+})
+
 const getFileName = (url) => {
   try {
     return decodeURIComponent(url.split('/').pop())
@@ -494,7 +577,6 @@ const getFileName = (url) => {
     return url
   }
 }
-
 
 /* Cập nhật file */
 const onFileChange = (event, field) => {
@@ -512,15 +594,7 @@ const onFileChange = (event, field) => {
     candidateForm.value.file_cv[langCode] = {}
   }
 
-  // Gán object chuẩn
-  // candidateForm.value.file_cv[langCode][field] = {
-  //   file, // ✅ đây là File object
-  //   url: URL.createObjectURL(file), // ✅ để preview hoặc debug
-  //   name: file.name // ✅ tiện hiển thị tên
-  // }
-  
   candidateForm.value.file_cv[langCode][field].file = file
-  // Reset input để có thể chọn lại cùng 1 file
   event.target.value = ''
 }
 
@@ -772,6 +846,7 @@ const closeModal = () => {
     current_location: 0,
     desired_location: [],
     experience_summary: {},
+    currentStrength: {},
     file_cv: {},
     cv_no_contact: null,
     cv_with_contact: null,
@@ -912,6 +987,7 @@ const editCandidate = (candidate) => {
     current_location: clone.current_location || 0,
     desired_location: (clone.desired_locations || []).map(item => item.location_id),
     experience_summary: clone.experience_summary || {},
+    currentStrength: clone.currentStrength || {},
     file_cv: clone.file_cv || {},
     cv_no_contact: currentLangCV.cv_no_contact || null, // 🔁 dùng để hiển thị tên
     cv_with_contact: currentLangCV.cv_with_contact || null,
@@ -949,6 +1025,7 @@ const handleSubmit = async () => {
     formData.append('education', JSON.stringify(candidateForm.value.education));
     formData.append('language', JSON.stringify(candidateForm.value.language));
     formData.append('experience_summary', JSON.stringify(candidateForm.value.experience_summary));
+    formData.append('currentStrength', JSON.stringify(candidateForm.value.currentStrength));
 
     // Thêm file cv
     Languages.value.forEach(lang => {
@@ -976,6 +1053,7 @@ const handleSubmit = async () => {
       current_location: 0,
       desired_location: [],
       experience_summary: {},
+      currentStrength: {},
       file_cv: {},
       cv_no_contact: null,
       cv_with_contact: null,
