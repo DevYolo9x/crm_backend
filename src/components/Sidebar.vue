@@ -1,5 +1,5 @@
 <script setup>
-import { HomeIcon, ArchiveIcon, UserGroupIcon, CollectionIcon } from '@heroicons/vue/outline'
+import { HomeIcon, ArchiveIcon, UserGroupIcon, CollectionIcon, BriefcaseIcon, UserIcon, OfficeBuildingIcon, ClipboardIcon, UserCircleIcon, CogIcon } from '@heroicons/vue/outline'
 import { menuItems } from '../constants/menuItems'
 import { computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
@@ -41,7 +41,14 @@ onMounted(() => {
 const iconMap = {
   dashboard: HomeIcon,
   orders: ArchiveIcon,
-  auth: UserGroupIcon,
+  customer: UserGroupIcon,
+  jobs: BriefcaseIcon,
+  candidate: UserIcon,
+  industries: OfficeBuildingIcon,
+  contracts: ClipboardIcon,
+  users: UserCircleIcon,
+  users: ActivityLogs,
+  setting: CogIcon,
 }
 </script>
 
@@ -55,8 +62,8 @@ const iconMap = {
   </button>
 
   <aside id="sidebar-multi-level-sidebar" class="bg-[#182537] fixed top-[64px] left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 shadow-md" aria-label="Sidebar">
-    <div class="element h-full px-3 py-4 dark:bg-gray-800">
-      <ul class="font-medium">
+    <div class="element h-full dark:bg-gray-800">
+      <ul class="text-[15px]">
         <li v-for="menu in permittedMenuItems" :key="menu.id">
           <router-link
             :to="menu.children ? '#' : menu.route || '#'"
@@ -66,14 +73,14 @@ const iconMap = {
               'cursor-default text-gray-500': menu.children,
               'hover:bg-primary hover:text-white': !menu.children,
             }"
-            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white dark:hover:bg-gray-700 group text-primary"
+            class="flex items-center px-3 py-[15px] text-white dark:text-white dark:hover:bg-gray-700 group"
           >
-            <component :is="iconMap[menu.id] || CollectionIcon" class="block h-6 w-6" aria-hidden="true" />
+            <component :is="iconMap[menu.id] || CollectionIcon" class="block h-5 w-5" aria-hidden="true" />
             <span class="ml-3">{{ menu.title }}</span>
           </router-link>
           <ul v-if="menu.children" class="text-sm">
             <li v-for="sub in menu.children" :key="sub.id">
-              <router-link :to="sub.route" @click="setActiveMenu(sub.id)" :class="{ 'bg-primary text-white hover:text-black': activeMenu === sub.id }" class="flex items-center w-full px-2 py-1 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-primary hover:text-white dark:text-white dark:hover:bg-gray-700">
+              <router-link :to="sub.route" @click="setActiveMenu(sub.id)" :class="{ 'bg-primary text-white hover:text-black': activeMenu === sub.id }" class="flex items-center w-full px-2 py-2 text-white transition duration-75 rounded-lg pl-11 group hover:bg-primary hover:text-white dark:text-white dark:hover:bg-gray-700">
                 {{ sub.title }}
               </router-link>
             </li>

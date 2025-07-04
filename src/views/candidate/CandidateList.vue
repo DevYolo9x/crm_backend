@@ -207,48 +207,209 @@
                   <label class="block text-sm font-medium text-gray-700 mb-1">
                       Quá trình học tập
                   </label>
-                  <div class="bg-gray-200 p-4 rounded-[4px]">
-                    
-                    <div class="" v-for="(item, key) in candidateForm.timeEducation[lang]" :key="key">
-                      <!-- Card 1 -->
-                      <div class="rounded-sm flex bg-white shadow p-3 gap-2 hover:shadow-lg transition delay-150 duration-300 ease-in-out transform mb-2">
-                        <!-- Icon -->
-                        <div class="w-[30px]">
-                          <ClockIcon class="w-6 h-6" />
-                        </div>
-
-                        <div class="">
-                          <!-- Title -->
-                          <div class="col-span-11 xl:-ml-5">
-                            <p class="text-blue-600 font-semibold"> {{ item.title }} </p>
-                          </div>
-                          
-                          <!-- Description -->
-                          <div class="md:col-start-2 col-span-11 xl:-ml-5">
-                            <p class="text-sm text-gray-800 font-light"> {{ item.school }} </p>
-                          </div>
-                        </div>
-                      </div>
+                  <div
+                    v-if="candidateForm.timeEducation && candidateForm.timeEducation[lang] && candidateForm.timeEducation[lang].length"
+                    class="mb-3"
+                  >
+                    <div class="bg-gray-100 p-4 rounded-[4px]">
+                      <ul role="list" class="my-2">
+                        <draggable
+                          v-model="candidateForm.timeEducation[lang]"
+                          item-key="id"
+                          tag="ul"
+                        >
+                          <template #item="{ element: item, index: key }">
+                            <li
+                              class="group relative flex flex-col pb-6 pl-7 last:pb-0 cursor-pointer"
+                            >
+                              <div class="absolute bottom-0 left-[calc(0.25rem-0.5px)] top-0 w-px bg-[#cdcdcd] group-first:top-3"></div>
+                              <div class="absolute left-0 top-2 h-2 w-2 rounded-full border bg-zinc-950"></div>
+                              <div class=" flex items-center justify-between text-sm">
+                                <time class="font-display text-2xs/6 order-first font-semibold tracking-[0.1em]" datetime="2023-06-20T17:30-04:00">{{ item.time }}</time>
+                                <div >
+                                  <button @click.prevent="editItemTimeEducation(key)" class="text-blue-700 hover:underline dark:text-white">Chỉnh sửa</button>
+                                  <span class="mx-2">|</span>
+                                  <button @click.prevent="removeItemTimeEducation(key)" class="text-blue-700 hover:underline dark:text-white">Xoá</button>
+                                </div>
+                              </div>
+                              <p class="mt-0.5 text-sm/6 text-[#333]">{{ item.school }}</p>
+                            </li>
+                          </template>
+                        </draggable>
+                      </ul>
                     </div>
+                  </div>
 
-                    <div class="grid grid-cols-12 gap-4">
-                      <div class="col-span-4">
-                        <input type="text" v-model="selectedTimeEducation.title" class="form-control" placeholder="Thời gian">
-                      </div>
-                      <div class="col-span-8">
-                        <textarea type="text" v-model="selectedTimeEducation.school" class="form-control" placeholder="Mô tả"></textarea>
+                  <div class="grid grid-cols-12 gap-4">
+                    <div class="col-span-4">
+                      <input type="text" v-model="selectedTimeEducation.time" class="form-control" placeholder="Thời gian *">
+                    </div>
+                    <div class="col-span-8">
+                      <textarea type="text" v-model="selectedTimeEducation.school" class="form-control" placeholder="Mô tả *"></textarea>
+                    </div>
+                  </div>
+                  
+                  <button v-if="selectedIndexTimeEducation == null" @click.prevent="addItemTimeEducation" :disabled="!selectedTimeEducation.time || !selectedTimeEducation.school" class="disabled:opacity-50 disabled:cursor-not-allowed bg-blue-600 mt-2 px-3 py-1 text-[12px] text-white">Thêm quá trình +</button>
+                  
+                  <!-- Nếu đã chọn item: Cập nhật -->
+                  <button v-if="selectedIndexTimeEducation != null" @click.prevent="updateTimeEducation" class="bg-blue-600 mt-2 px-3 py-1 text-[12px] text-white">
+                    Cập nhật
+                  </button>
+                  <button v-if="selectedIndexTimeEducation != null" @click.prevent="existTimeEducation" class="bg-red-500 mt-2 px-3 py-1 text-[12px] text-white ml-2">
+                    Huỷ
+                  </button>
+                </div>
+
+                <!-- Kỹ năng -->
+                <div class=" mt-3">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                      Kỹ năng
+                  </label>
+
+                  <div
+                    v-if="candidateForm.skills && candidateForm.skills[lang] && candidateForm.skills[lang].length"
+                    class="mb-3"
+                  >
+                    <div class="">
+                      <div class="">
+                        <div class="max-w-none mx-auto">
+                          <div class="bg-white overflow-hidden sm:rounded-lg sm:shadow">
+                            
+                            <ul class="opacity-100">
+                              <draggable
+                                v-model="candidateForm.skills[lang]"
+                                item-key="id"
+                                tag="ul"
+                              >
+                                <template #item="{ element: item, index: key }">
+                                  <li>
+                                    <div class="block hover:bg-gray-50 focus:outline-none focus:bg-gray-50 transition duration-150 ease-in-out">
+                                      <div class="px-4 py-4 sm:px-6 border-t">
+                                        <div class="flex items-center justify-between">
+                                          <div class="text-sm leading-5 font-medium text-indigo-600 truncate">
+                                            {{ item.name }}
+                                          </div>
+                                          <div class="ml-2 flex-shrink-0 flex text-sm">
+                                            <div >
+                                              <button @click.prevent="editItemSkill(key)" class="text-blue-700 hover:underline dark:text-white">Chỉnh sửa</button>
+                                              <span class="mx-2">|</span>
+                                              <button @click.prevent="removeItemSkill(key)" class="text-blue-700 hover:underline dark:text-white">Xoá</button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div class="mt-2 flex justify-between">
+                                          <div class="sm:flex">
+                                            <div class="mr-6 flex items-center text-sm leading-5 text-gray-500">
+                                              <AcademicCapIcon class="w-4 h-4 mr-2" />
+                                              {{ item.description }}
+                                            </div>
+                                          </div>
+                                          
+                                        </div>
+                                      </div>
+                                      
+                                    </div>
+                                  </li>
+                                </template>
+                              </draggable>
+                            </ul>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <button @click.prevent="addItemTimeEducation" class="bg-blue-600 mt-2 px-3 py-1 text-[12px] text-white">Thêm +</button>
+
+                  <div class="grid grid-cols-12 gap-4">
+                    <div class="col-span-4">
+                      <input type="text" v-model="selectedSkills.name" class="form-control" placeholder="Tên kỹ năng">
+                    </div>
+                    <div class="col-span-8">
+                      <textarea type="text" v-model="selectedSkills.description" class="form-control" placeholder="Mô tả"></textarea>
+                    </div>
+                  </div>
+                  
+                  <button v-if="selectedIndexSkill == null" @click.prevent="addItemSkills" :disabled="!selectedSkills.name || !selectedSkills.description" class="disabled:opacity-50 disabled:cursor-not-allowed bg-blue-600 mt-2 px-3 py-1 text-[12px] text-white">Thêm kỹ năng +</button>
+                  
+                  <!-- Nếu đã chọn item: Cập nhật -->
+                  <button v-if="selectedIndexSkill != null" @click.prevent="updateSkill" class="bg-blue-600 mt-2 px-3 py-1 text-[12px] text-white">
+                    Cập nhật
+                  </button>
+                  <button v-if="selectedIndexSkill != null" @click.prevent="existSkill" class="bg-red-500 mt-2 px-3 py-1 text-[12px] text-white ml-2">
+                    Huỷ
+                  </button>
                 </div>
+
                 <!-- Điểm mạnh -->
                 <div class="mt-3">
                   <label class="block text-sm font-medium text-gray-700 mb-1">Điểm mạnh</label>
                   <quill-editor ref="quill" :modules="modules" :toolbar="toolbar" v-model:content="currentStrength" contentType="html" :key="lang" />
                 </div>
-                <!-- Kinh nghiệm -->
+
+                <!-- Kinh nghiệm làm việc -->
                 <div class="mt-3">
+                  <label class="block text-sm font-medium text-gray-700 mb-1"> Kinh nghệm làm việc </label>
+                  <div class="dark:bg-gray-800 w-full" v-if="candidateForm.work_experience && candidateForm.work_experience[lang] && candidateForm.work_experience[lang].length">
+                    <div class="flex flex-col justify-center mt-3 mb-3">
+                      <div class="gap-4 grid grid-cols-1">
+                        <draggable
+                          v-model="candidateForm.work_experience[lang]"
+                          item-key="id"
+                          tag="ul"
+                        >
+                          <template #item="{ element: item, index: key }">
+                            <div class="p-4 flex flex-col justify-between gap-2 border rounded-lg shadow-md bg-white dark:bg-gray-700 dark:border-gray-400/40 text-[14px] mb-2">
+                              <div class="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-300">
+                                <span class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-600"><strong>Thời gian: </strong> {{ item.time }} </span>
+                              </div>
+                              <a class="dark:text-blue-100 font-semibold hover:underline text-blue-700 two-lines"><strong>Công ty: </strong> {{ item.company }} </a>
+                              <p><strong>Vị trí: </strong> <span class="italic">{{ item.position }}</span> </p>
+                              <div class="text-gray-800 two-lines dark:text-gray-300" v-html="item.description"></div>
+                              <div class="flex items-center justify-end text-sm">
+                                <button @click.prevent="editItemExperience(key)" class="text-blue-700 hover:underline dark:text-white">Chỉnh sửa</button>
+                                <span class="mx-2">|</span>
+                                <button @click.prevent="removeItemExperience(key)" class="text-blue-700 hover:underline dark:text-white">Xoá</button>
+                              </div>
+                            </div>
+                          </template>
+                      </draggable>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-12 gap-4">
+                    <div class="col-span-4">
+                      <input type="text" v-model="selectedWorkExperience.time" class="form-control" placeholder="Thời gian *">
+                    </div>
+                    <div class="col-span-4">
+                      <input type="text" v-model="selectedWorkExperience.company" class="form-control" placeholder="Công ty *">
+                    </div>
+                    <div class="col-span-4">
+                      <input type="text" v-model="selectedWorkExperience.position" class="form-control" placeholder="Vị trí *">
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <quill-editor ref="quill" :modules="modules" :toolbar="toolbar" v-model:content="selectedWorkExperience.description" contentType="html" :key="lang" />
+                  </div>
+
+                  <!-- Nếu chưa chọn gì: Thêm -->
+                  <button
+                    v-if="selectedIndexWorkExperience == null"
+                    @click.prevent="addWorkExperience"
+                    class="bg-blue-600 mt-2 px-3 py-1 text-[12px] text-white"
+                  >
+                    Thêm kinh nghiệm +
+                  </button>
+                  
+                  <!-- Nếu đã chọn item: Cập nhật -->
+                  <button v-if="selectedIndexWorkExperience != null" @click.prevent="updateWorkExperience" class="bg-blue-600 mt-2 px-3 py-1 text-[12px] text-white">
+                    Cập nhật
+                  </button>
+                  <button v-if="selectedIndexWorkExperience != null" @click.prevent="existWorkExperience" class="bg-red-500 mt-2 px-3 py-1 text-[12px] text-white ml-2">
+                    Huỷ
+                  </button>
+                </div>
+
+                <!-- Kinh nghiệm -->
+                <div class="mt-3 hidden">
                   <label class="block text-sm font-medium text-gray-700 mb-1">Tóm tắt kinh nghiệm và nhận xét</label>
                   <quill-editor ref="quill" :modules="modules" :toolbar="toolbar" v-model:content="currentExperienceSummary" contentType="html" :key="lang" />
                 </div>
@@ -355,12 +516,13 @@
 </template>
 
 <script setup>
-import { PlusIcon, PencilAltIcon, XCircleIcon, EyeIcon, CloudDownloadIcon, DownloadIcon, ClockIcon } from '@heroicons/vue/solid'
+import { PlusIcon, PencilAltIcon, XCircleIcon, EyeIcon, CloudDownloadIcon, DownloadIcon, AcademicCapIcon } from '@heroicons/vue/solid'
 import { ref, onMounted, computed, reactive, watch } from 'vue'
 import { useStore } from 'vuex'
 import { debounce } from 'lodash'
 import { useRoute } from 'vue-router'
 import { cloneDeep } from 'lodash'
+import draggable from 'vuedraggable'
 
 import Swal from 'sweetalert2'
 import Title from '../../components/Title.vue'
@@ -409,9 +571,23 @@ const selectedLanguageFilter = ref(null) // Thêm bộ lọc ngoại ngữ
 const selectedDesiredLocationsFilter = ref([]) // Thêm bộ lọc khu vực mong muốn
 const selectedIndustryId = ref([])
 const selectedTimeEducation = ref({
-  title: '',
+  time: '',
   school: '',
 }) // Quá trình học tập
+const selectedSkills = ref({
+  name: '',
+  description: '',
+}) // Các kỹ năng
+const selectedWorkExperience = ref({
+  time: '',
+  company: '',
+  position: '',
+  description: '',
+}) // Kinh nghiệm làm việc
+const selectedIndexWorkExperience = ref(null) // Giá trị bản ghỉ thứ {n} để cập nhật - Kinh nghiệm làm việc
+const selectedIndexTimeEducation = ref(null) // Giá trị bản ghỉ thứ {n} để cập nhật - Quá trình học tập
+const selectedIndexSkill = ref(null) // Giá trị bản ghỉ thứ {n} để cập nhật - Quá trình học tập
+
 const selectedEducation = ref(null)
 const selectedLanguage = ref(null)
 const selectedCurrentLocation = ref(null)
@@ -436,6 +612,8 @@ const candidateForm = ref({
   experience_summary: {},
   currentStrength: {},
   timeEducation: {},
+  skills: {},
+  work_experience: {},
   file_cv: {},
   cv_no_contact: null,
   cv_with_contact: null,
@@ -452,6 +630,121 @@ const withContactFileName = computed(() => {
   const url = candidateForm.value.file_cv?.[lang]?.cv_with_contact?.url
   return url ? url.split('/').pop() : ''
 })
+
+/* Chỉnh sửa các bản ghi: Kinh nghệm */
+const removeItemExperience = (index) => {
+  const skillList = candidateForm.value.work_experience?.[lang.value];
+
+  if (Array.isArray(skillList) && index >= 0 && index < skillList.length) {
+    skillList.splice(index, 1);
+  } else {
+    console.warn('Danh sách kỹ năng không hợp lệ hoặc index vượt quá giới hạn');
+  }
+};
+
+const editItemExperience = (index) => { // Chỉnh sửa
+  const list = candidateForm.value.work_experience?.[lang.value];
+  selectedIndexWorkExperience.value = index;
+  if (Array.isArray(list) && list[index]) {
+    selectedWorkExperience.value = { ...list[index] };
+  }
+};
+
+const updateWorkExperience = () => { // Cập nhật vào mạng Candidate
+  const index = selectedIndexWorkExperience.value;
+  const experiences = candidateForm.value.work_experience?.[lang.value];
+
+  if (Array.isArray(experiences) && index !== null && index !== '' && experiences[index]) {
+    experiences[index] = { ...selectedWorkExperience.value }; // spread để tránh liên kết tham chiếu
+    selectedIndexWorkExperience.value = null;
+    selectedWorkExperience.value = {description: ''}; // Reset form
+  } else {
+    console.warn('Không thể cập nhật: dữ liệu hoặc index không hợp lệ');
+  }
+};
+
+const existWorkExperience = () => {
+  selectedWorkExperience.value = {description: ''}; // Reset form
+  selectedIndexWorkExperience.value = null // Reset lại chọn cập nhật kinh nghiệm làm việc
+}
+/* Chỉnh sửa các bản ghi: Kinh nghệm */
+
+/* Chỉnh sửa các bản ghi: Quá trình học tập */
+const removeItemTimeEducation = (index) => {
+  const skillList = candidateForm.value.timeEducation?.[lang.value];
+
+  if (Array.isArray(skillList) && index >= 0 && index < skillList.length) {
+    skillList.splice(index, 1);
+  } else {
+    console.warn('Danh sách kỹ năng không hợp lệ hoặc index vượt quá giới hạn');
+  }
+};
+
+const editItemTimeEducation = (index) => { // Chỉnh sửa
+  const list = candidateForm.value.timeEducation?.[lang.value];
+  selectedIndexTimeEducation.value = index;
+  if (Array.isArray(list) && list[index]) {
+    selectedTimeEducation.value = { ...list[index] };
+  }
+};
+
+const updateTimeEducation = () => { // Cập nhật vào mạng Candidate
+  const index = selectedIndexTimeEducation.value;
+  const educations = candidateForm.value.timeEducation?.[lang.value];
+
+  if (Array.isArray(educations) && index !== null && index !== '' && educations[index]) {
+    educations[index] = { ...selectedTimeEducation.value }; // spread để tránh liên kết tham chiếu
+    selectedIndexTimeEducation.value = null;
+    selectedTimeEducation.value = {};
+  } else {
+    console.warn('Không thể cập nhật: dữ liệu hoặc index không hợp lệ');
+  }
+};
+
+const existTimeEducation = () => {
+  selectedTimeEducation.value = {}; // Reset form
+  selectedIndexTimeEducation.value = null // Reset lại chọn cập nhật kinh nghiệm làm việc
+}
+/* Chỉnh sửa các bản ghi: Kinh nghệm */
+
+/* Chỉnh sửa các bản ghi: Kỹ năng */
+const removeItemSkill = (index) => {
+  const skillList = candidateForm.value.skills?.[lang.value];
+
+  if (Array.isArray(skillList) && index >= 0 && index < skillList.length) {
+    skillList.splice(index, 1);
+  } else {
+    console.warn('Danh sách kỹ năng không hợp lệ hoặc index vượt quá giới hạn');
+  }
+};
+
+const editItemSkill = (index) => { // Chỉnh sửa
+  const list = candidateForm.value.skills?.[lang.value];
+  selectedIndexSkill.value = index;
+  if (Array.isArray(list) && list[index]) {
+    selectedSkills.value = { ...list[index] };
+  }
+};
+
+const updateSkill = () => { // Cập nhật vào mạng Candidate
+  const index = selectedIndexSkill.value;
+  const skills = candidateForm.value.skills?.[lang.value];
+
+  if (Array.isArray(skills) && index !== null && index !== '' && skills[index]) {
+    skills[index] = { ...selectedSkills.value }; // spread để tránh liên kết tham chiếu
+    selectedIndexSkill.value = null;
+    selectedSkills.value = {};
+  } else {
+    console.warn('Không thể cập nhật: dữ liệu hoặc index không hợp lệ');
+  }
+};
+
+const existSkill = () => {
+  selectedSkills.value = {}; // Reset form
+  selectedIndexSkill.value = null // Reset lại chọn cập nhật kinh nghiệm làm việc
+}
+/* Chỉnh sửa các bản ghi: Kinh nghệm */
+
 
 
 /* Xuất file cv word */
@@ -484,24 +777,85 @@ const currentFullName = computed({ // Họ tên
   }
 })
 
-const addItemTimeEducation = () => {
+const addItemTimeEducation = () => { // Thêm item quá trình học tập và mảng
   const langKey = lang.value;
 
-  // Khởi tạo mảng nếu chưa có
-  if (!candidateForm.value.timeEducation[langKey]) {
+  // Đảm bảo timeEducation là một object
+  if (!candidateForm.value.timeEducation) {
+    candidateForm.value.timeEducation = {};
+  }
+
+  // Đảm bảo mảng theo langKey tồn tại
+  if (!Array.isArray(candidateForm.value.timeEducation[langKey])) {
     candidateForm.value.timeEducation[langKey] = [];
   }
 
   // Kiểm tra dữ liệu đầu vào
-  if (selectedTimeEducation.value.title && selectedTimeEducation.value.school) {
+  if (selectedTimeEducation.value.time && selectedTimeEducation.value.school) {
     candidateForm.value.timeEducation[langKey].push({
-      title: selectedTimeEducation.value.title,
+      time: selectedTimeEducation.value.time,
       school: selectedTimeEducation.value.school
     });
 
     // Reset nếu muốn
-    selectedTimeEducation.value.title = '';
+    selectedTimeEducation.value.time = '';
     selectedTimeEducation.value.school = '';
+  }
+};
+
+const addWorkExperience = () => { // Thêm item kinh nghệm làm việc và mảng
+  const langKey = lang.value;
+
+  // Đảm bảo timeEducation là một object
+  if (!candidateForm.value.work_experience) {
+    candidateForm.value.work_experience = {};
+  }
+
+  // Đảm bảo mảng theo langKey tồn tại
+  if (!Array.isArray(candidateForm.value.work_experience[langKey])) {
+    candidateForm.value.work_experience[langKey] = [];
+  }
+
+  // Kiểm tra dữ liệu đầu vào
+  if (selectedWorkExperience.value.time && selectedWorkExperience.value.company) {
+    candidateForm.value.work_experience[langKey].push({
+      time: selectedWorkExperience.value.time,
+      company: selectedWorkExperience.value.company,
+      position: selectedWorkExperience.value.position,
+      description: selectedWorkExperience.value.description
+    });
+
+    // Reset nếu muốn
+    selectedWorkExperience.value.time = '';
+    selectedWorkExperience.value.company = '';
+    selectedWorkExperience.value.position = '';
+    selectedWorkExperience.value.description = '';
+  }
+};
+
+const addItemSkills = () => { // Thêm item kỹ năng vào mảng
+  const langKey = lang.value;
+
+  // Đảm bảo skills là một object
+  if (!candidateForm.value.skills) {
+    candidateForm.value.skills = {};
+  }
+
+  // Đảm bảo mảng theo langKey tồn tại
+  if (!Array.isArray(candidateForm.value.skills[langKey])) {
+    candidateForm.value.skills[langKey] = [];
+  }
+
+  // Kiểm tra dữ liệu đầu vào
+  if (selectedSkills.value.name && selectedSkills.value.description) {
+    candidateForm.value.skills[langKey].push({
+      name: selectedSkills.value.name,
+      description: selectedSkills.value.description
+    });
+
+    // Reset nếu muốn
+    selectedSkills.value.name = '';
+    selectedSkills.value.description = '';
   }
 };
 
@@ -546,7 +900,7 @@ const currentLanguage = computed({ // Ngoại ngữ
   }
 })
 
-const currentExperienceSummary = computed({
+const currentExperienceSummary = computed({ // Kinh nghiệm
   get() {
     return candidateForm.value.experience_summary[lang.value] || ''
   },
@@ -558,7 +912,7 @@ const currentExperienceSummary = computed({
   }
 })
 
-const currentStrength = computed({
+const currentStrength = computed({ // ĐiểM mạnh
   get() {
     return candidateForm.value.currentStrength[lang.value] || ''
   },
@@ -597,8 +951,6 @@ const onFileChange = (event, field) => {
   candidateForm.value.file_cv[langCode][field].file = file
   event.target.value = ''
 }
-
-
 /* END: Thêm ngôn ngữ */ 
 
 // Danh sách jobs
