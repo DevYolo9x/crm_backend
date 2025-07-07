@@ -78,7 +78,8 @@
               {{ candidate.phone }}
             </td>
             <td>
-              {{ candidate.industry_id.vi?.map(item => item.title).join(', ') }}
+              <!-- {{ candidate.industry_id.vi?.map(item => item.title).join(', ') }} -->
+              <div class="flex flex-wrap gap-1" v-html="renderIndustries(candidate.industry_id.vi)"></div>
             </td>
             <td>{{ candidate.expiry_date }}</td>
             <td>{{ candidate.created_at }}</td>
@@ -417,33 +418,61 @@
                 <div class="mt-3">
                   <div class="grid grid-cols-2 gap-4">
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">File CV không có thông tin liên hệ</label>
-                      <input type="file" @change="onFileChange($event, 'cv_no_contact')" class="form-control-file" />
-                      <a
-                        v-if="candidateForm.file_cv?.[lang]?.cv_no_contact?.url"
-                        :href="candidateForm.file_cv[lang].cv_no_contact.url"
-                        target="_blank" class="font-medium inline-block mt-3 underline text-[13px]"
-                      >
-                        <svg width="18px" height="18px" class="inline-block mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Interface / Download"> <path id="Vector" d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>
-                        {{ getFileName(candidateForm.file_cv[lang].cv_no_contact.url) }}
-                      </a>
-                      <div class="mt-3 text-[13px]" v-if="candidateForm.file_cv?.[lang]?.cv_no_contact?.file">
-                        📎 File đã chọn: {{ candidateForm.file_cv[lang].cv_no_contact.file.name }}
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">- File CV không có thông tin liên hệ</label>
+                        <input type="file" @change="onFileChange($event, 'cv_no_contact')" class="form-control-file" />
+                        <a
+                          v-if="candidateForm.file_cv?.[lang]?.cv_no_contact?.url"
+                          :href="candidateForm.file_cv[lang].cv_no_contact.url"
+                          target="_blank" class="font-medium inline-block mt-3 underline text-[13px]"
+                        >
+                          <svg width="18px" height="18px" class="inline-block mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Interface / Download"> <path id="Vector" d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>
+                          {{ getFileName(candidateForm.file_cv[lang].cv_no_contact.url) }}
+                        </a>
+                        <div class="mt-3 text-[13px]" v-if="candidateForm.file_cv?.[lang]?.cv_no_contact?.file">
+                          📎 File đã chọn: {{ candidateForm.file_cv[lang].cv_no_contact.file.name }}
+                        </div>
+                      </div>
+                      <div class="mt-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">- File CV có thông tin liên hệ</label>
+                        <input type="file" @change="onFileChange($event, 'cv_with_contact')" class="form-control-file" />
+                        <a
+                          v-if="candidateForm.file_cv?.[lang]?.cv_with_contact?.url"
+                          :href="candidateForm.file_cv[lang].cv_with_contact.url"
+                          target="_blank" class="font-medium inline-block mt-3 underline text-[13px]"
+                        >
+                          <svg width="18px" height="18px" class="inline-block mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Interface / Download"> <path id="Vector" d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>
+                          {{ getFileName(candidateForm.file_cv[lang].cv_with_contact.url) }}
+                        </a>
+                        <div class="mt-3 text-[13px]" v-if="candidateForm.file_cv?.[lang]?.cv_with_contact?.file">
+                          📎 File đã chọn: {{ candidateForm.file_cv[lang].cv_with_contact.file.name }}
+                        </div>
                       </div>
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">File CV có thông tin liên hệ</label>
-                      <input type="file" @change="onFileChange($event, 'cv_with_contact')" class="form-control-file" />
-                      <a
-                        v-if="candidateForm.file_cv?.[lang]?.cv_with_contact?.url"
-                        :href="candidateForm.file_cv[lang].cv_with_contact.url"
-                        target="_blank" class="font-medium inline-block mt-3 underline text-[13px]"
-                      >
-                        <svg width="18px" height="18px" class="inline-block mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Interface / Download"> <path id="Vector" d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>
-                        {{ getFileName(candidateForm.file_cv[lang].cv_with_contact.url) }}
-                      </a>
-                      <div class="mt-3 text-[13px]" v-if="candidateForm.file_cv?.[lang]?.cv_with_contact?.file">
-                        📎 File đã chọn: {{ candidateForm.file_cv[lang].cv_with_contact.file.name }}
+                      <div class="flex flex-col items-center">
+                        <!-- Preview -->
+                        <span class="block text-sm font-medium text-gray-700 mb-1">Ảnh thẻ</span>
+                        <label for="avatar" class="cursor-pointer">
+                          <img
+                            :src="preview || defaultAvatar"
+                            alt="Avatar"
+                            class="h-[151px] object-cover border hover:opacity-80 transition"
+                          />
+                        </label>
+
+                        <!-- Input file -->
+                        <input
+                          id="avatar"
+                          type="file"
+                          accept="image/*"
+                          @change="handleFileChange"
+                          class="hidden"
+                        />
+
+                        <p v-if="candidateForm.avatar?.name" class="mt-2 text-sm text-gray-500">
+                          {{ candidateForm.avatar.name }}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -599,10 +628,13 @@ const jobs = ref([]) // Danh sách jobs
 const selectedCandidateFullName = ref('') // Tên ứng viên được chọn
 const loadingAssignJob = ref(false) // Trạng thái loading khi gán job
 const loadingJobs = ref(false) // Trạng thái loading khi tìm kiếm jobs
+const preview = ref(null)
+const defaultAvatar = 'https://png.pngtree.com/png-clipart/20190924/original/pngtree-user-vector-avatar-png-image_4830521.jpg' // ảnh fallback
 const candidateForm = ref({
   full_name: {},
   phone: '',
   email: '',
+  avatar: {},
   industry_id: [],
   education: {},
   language: {},
@@ -631,6 +663,11 @@ const withContactFileName = computed(() => {
   return url ? url.split('/').pop() : ''
 })
 
+// Hiển thị danh sách ngành nghề
+const renderIndustries = (list) => {
+  return list?.map(item => `<p class="p-1 rounded-sm btn-success text-xs">${item.title}</p>`).join('') || ''
+}
+
 /* Chỉnh sửa các bản ghi: Kinh nghệm */
 const removeItemExperience = (index) => {
   const skillList = candidateForm.value.work_experience?.[lang.value];
@@ -649,6 +686,15 @@ const editItemExperience = (index) => { // Chỉnh sửa
     selectedWorkExperience.value = { ...list[index] };
   }
 };
+
+// Xử lý upload file
+const handleFileChange = (event) => {
+  const file = event.target.files[0]
+  if (file && file.type.startsWith('image/')) {
+    candidateForm.value.avatar = file // gán trực tiếp vào form
+    preview.value = URL.createObjectURL(file)
+  }
+}
 
 const updateWorkExperience = () => { // Cập nhật vào mạng Candidate
   const index = selectedIndexWorkExperience.value;
@@ -1191,6 +1237,7 @@ const closeModal = () => {
     full_name: {},
     phone: '',
     email: '',
+    avatar: {},
     industry_id: [],
     education: {},
     language: {},
@@ -1332,6 +1379,7 @@ const editCandidate = (candidate) => {
     full_name: clone.full_name || {},
     phone: clone.phone || '',
     email: clone.email || '',
+    avatar: clone.avatar || {},
     industry_id: clone.industry_id || {},
     education: clone.education || {},
     language: clone.language || {},
@@ -1378,6 +1426,9 @@ const handleSubmit = async () => {
     formData.append('language', JSON.stringify(candidateForm.value.language));
     formData.append('experience_summary', JSON.stringify(candidateForm.value.experience_summary));
     formData.append('currentStrength', JSON.stringify(candidateForm.value.currentStrength));
+    formData.append('time_education', JSON.stringify(candidateForm.value.timeEducation));
+    formData.append('skills', JSON.stringify(candidateForm.value.skills));
+    formData.append('work_experience', JSON.stringify(candidateForm.value.work_experience));
 
     // Thêm file cv
     Languages.value.forEach(lang => {
@@ -1392,12 +1443,18 @@ const handleSubmit = async () => {
         formData.append(`file_cv[${lang.code}][cv_with_contact]`, withContact)
       }
     })
+
+    if( candidateForm.value.avatar && candidateForm.value.avatar instanceof File ){
+      formData.append('avatar', candidateForm.value.avatar)
+    }
+
     const data = await store.dispatch(action, formData)
     toastr.success(`${data.message}`)
     candidateForm.value = {
       full_name: {},
       phone: '',
       email: '',
+      avatar: {},
       industry_id: [],
       education: {},
       language: {},

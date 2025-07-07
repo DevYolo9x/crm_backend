@@ -1,7 +1,7 @@
 <script setup>
-import { HomeIcon, ArchiveIcon, UserGroupIcon, CollectionIcon, BriefcaseIcon, UserIcon, OfficeBuildingIcon, ClipboardIcon, UserCircleIcon, CogIcon } from '@heroicons/vue/outline'
+import { HomeIcon, ArchiveIcon, UserGroupIcon, CollectionIcon, BriefcaseIcon, UserIcon, OfficeBuildingIcon, ClipboardIcon, UserCircleIcon, CogIcon, AdjustmentsIcon, ChevronRightIcon  } from '@heroicons/vue/outline'
 import { menuItems } from '../constants/menuItems'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { can, filterMenuByPermissions } from '../helpers/permissions'
@@ -37,6 +37,16 @@ onMounted(() => {
   store.dispatch('sidebar/syncActiveMenuWithRoute', active)
 })
 
+const isShowChildren = ref(false);
+
+const activeParentMenu = ref(0);
+
+const toggleChildren = (menuId) => {
+  activeParentMenuId.value = activeParentMenuId.value === menuId ? null : menuId
+}
+
+const activeParentMenuId = ref(null)
+
 // Icon map
 const iconMap = {
   dashboard: HomeIcon,
@@ -47,7 +57,6 @@ const iconMap = {
   industries: OfficeBuildingIcon,
   contracts: ClipboardIcon,
   users: UserCircleIcon,
-  users: ActivityLogs,
   setting: CogIcon,
 }
 </script>
@@ -63,24 +72,29 @@ const iconMap = {
 
   <aside id="sidebar-multi-level-sidebar" class="bg-[#182537] fixed top-[64px] left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 shadow-md" aria-label="Sidebar">
     <div class="element h-full dark:bg-gray-800">
-      <ul class="text-[15px]">
+      <ul class="text-[14px]">
         <li v-for="menu in permittedMenuItems" :key="menu.id">
           <router-link
             :to="menu.children ? '#' : menu.route || '#'"
-            @click.prevent="menu.children ? null : setActiveMenu(menu.id)"
+            @click.prevent="menu.children ? toggleChildren(menu.id) : setActiveMenu(menu.id)"
             :class="{
-              'bg-primary text-white hover:text-black': activeMenu === menu.id,
+              'bg-primary text-white ': activeMenu === menu.id || activeParentMenuId === menu.id,
               'cursor-default text-gray-500': menu.children,
-              'hover:bg-primary hover:text-white': !menu.children,
+              'hover:bg-primary hover:text-white': !menu.children
             }"
-            class="flex items-center px-3 py-[15px] text-white dark:text-white dark:hover:bg-gray-700 group"
+            class="flex justify-between items-center px-3 py-[15px] text-white dark:text-white dark:hover:bg-gray-700 group cursor-pointer"
           >
-            <component :is="iconMap[menu.id] || CollectionIcon" class="block h-5 w-5" aria-hidden="true" />
-            <span class="ml-3">{{ menu.title }}</span>
+            <div class="flex">
+              <component :is="iconMap[menu.id] || CollectionIcon" class="block h-5 w-5" aria-hidden="true" />
+              <span class="ml-3">
+                {{ menu.title }}
+              </span>
+            </div>
+            <span v-if="menu.children" class="cursor-pointer"><ChevronRightIcon class="inline-block h-4 w-4"/></span>
           </router-link>
-          <ul v-if="menu.children" class="text-sm">
+          <ul v-if="menu.children && activeParentMenuId === menu.id" class="text-sm">
             <li v-for="sub in menu.children" :key="sub.id">
-              <router-link :to="sub.route" @click="setActiveMenu(sub.id)" :class="{ 'bg-primary text-white hover:text-black': activeMenu === sub.id }" class="flex items-center w-full px-2 py-2 text-white transition duration-75 rounded-lg pl-11 group hover:bg-primary hover:text-white dark:text-white dark:hover:bg-gray-700">
+              <router-link :to="sub.route" @click="setActiveMenu(sub.id); activeParentMenuId = menu.id" :class="{ ' text-[#52afff] bg-[#52525259]': activeMenu === sub.id, ' text-white ': activeMenu !== sub.id }" class="flex items-center w-full px-2 py-3 transition duration-75 pl-11 group hover:bg-[#394350] dark:text-white dark:hover:bg-gray-700">
                 {{ sub.title }}
               </router-link>
             </li>
