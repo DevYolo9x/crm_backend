@@ -87,7 +87,7 @@
             <td v-if="can(userPermissions, 'candidates', 'edit') || can(userPermissions, 'candidates', 'destroy')">
               <div class="whitespace-nowrap flex flex-col space-y-1">
                 <div class="flex items-center space-x-1 justify-end">
-                  <button @click="downloadCandidateCV()" class="btn btn-success !w-auto flex items-center">
+                  <button @click.prevent="downloadCandidateCV()" class="btn btn-success !w-auto flex items-center">
                     <DownloadIcon class="block h-6 w-6 text-white mr-1" />
                     Xuất file
                   </button>
@@ -477,6 +477,10 @@
                     </div>
                   </div>
                   <p class="font-normal mt-3 text-[12px] text-red-600">* Dung lượng File CV không có thông tin liên hệ không quá 10MB</p>
+                  <button @click.prevent="downloadCandidateCV(lang)" class="!w-auto btn-success flex items-center mt-3 px-2 py-1 rounded-[4px] text-[13px]">
+                    <DownloadIcon class="block h-6 w-6 text-white mr-1" />
+                    Xuất file
+                  </button>
                 </div>
              </div>
             <!-- Debug -->
@@ -629,7 +633,7 @@ const selectedCandidateFullName = ref('') // Tên ứng viên được chọn
 const loadingAssignJob = ref(false) // Trạng thái loading khi gán job
 const loadingJobs = ref(false) // Trạng thái loading khi tìm kiếm jobs
 const preview = ref(null)
-const defaultAvatar = 'https://png.pngtree.com/png-clipart/20190924/original/pngtree-user-vector-avatar-png-image_4830521.jpg' // ảnh fallback
+const defaultAvatar = ref('') // ảnh fallback
 const candidateForm = ref({
   full_name: {},
   phone: '',
@@ -794,8 +798,9 @@ const existSkill = () => {
 
 
 /* Xuất file cv word */
-const downloadCandidateCV = () => {
-  store.dispatch('candidates/downloadCV')
+const downloadCandidateCV = (lang = 'vi') => {
+  const id = candidateForm.value.id
+  store.dispatch('candidates/downloadCV', { lang, id })
 }
 /* Xuất file cv word */
 
@@ -862,6 +867,8 @@ const addWorkExperience = () => { // Thêm item kinh nghệm làm việc và m�
     candidateForm.value.work_experience[langKey] = [];
   }
 
+  
+
   // Kiểm tra dữ liệu đầu vào
   if (selectedWorkExperience.value.time && selectedWorkExperience.value.company) {
     candidateForm.value.work_experience[langKey].push({
@@ -877,6 +884,8 @@ const addWorkExperience = () => { // Thêm item kinh nghệm làm việc và m�
     selectedWorkExperience.value.position = '';
     selectedWorkExperience.value.description = '';
   }
+
+  console.log(candidateForm.value);
 };
 
 const addItemSkills = () => { // Thêm item kỹ năng vào mảng
@@ -1373,6 +1382,8 @@ const editCandidate = (candidate) => {
   const fileCV = candidate.file_cv || {}
   const currentLangCV = fileCV[lang.value] || {}
 
+  defaultAvatar.value = clone.avatar_url,
+
   // Gán về form
   candidateForm.value = {
     id: clone.id || 0,
@@ -1387,7 +1398,10 @@ const editCandidate = (candidate) => {
     current_location: clone.current_location || 0,
     desired_location: (clone.desired_locations || []).map(item => item.location_id),
     experience_summary: clone.experience_summary || {},
-    currentStrength: clone.currentStrength || {},
+    currentStrength: clone.strength || {},
+    timeEducation: clone.time_education || {},
+    skills: clone.skills || {},
+    work_experience: clone.work_experience || {},
     file_cv: clone.file_cv || {},
     cv_no_contact: currentLangCV.cv_no_contact || null, // 🔁 dùng để hiển thị tên
     cv_with_contact: currentLangCV.cv_with_contact || null,

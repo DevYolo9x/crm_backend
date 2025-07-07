@@ -44,9 +44,12 @@ export default {
         },
     },
     actions: {
-        async downloadCV({ commit }) { // Xuất file word
+        async downloadCV({ commit }, payload) { // Xuất file word
             try {
+                const { lang = 'vi', id} = payload || {};
                 const response = await axiosInstance.get(`candidates/export-cv`, {
+                    params: { lang, id },
+                }, {
                   responseType: 'blob', // Bắt buộc để xử lý file Word
                 })
             
