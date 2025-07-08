@@ -39,6 +39,7 @@ import JobForm from '../views/job/JobForm.vue'
 import IndustryManagement from '../views/industry/IndustryManagement.vue'
 import ActivityLog from '../views/activityLog/ActivityLog.vue'
 import CandidateList from '../views/candidate/CandidateList.vue'
+import CandidateForm from '../views/candidate/CandidateForm.vue'
 
 // Contracts
 import ContractList from '../views/contract/ContractList.vue'
@@ -71,8 +72,10 @@ const routes = [
             { path: 'jobs/create', name: 'jobs.create', component: JobForm, meta: { title: 'Thêm mới job order', resource: 'jobs', action: 'create' } },
             { path: 'jobs/:id', name: 'jobs.update', component: JobForm, meta: { title: 'Cập nhập job order', resource: 'jobs', action: 'edit' } },
             { path: 'candidate-jobs/:id', name: 'CandidateJobs', component: AssignCandidate, meta: { title: 'Danh sách ứng viên', resource: 'jobs', action: 'index' } },
+            
             // Candidates
             { path: 'candidate', name: 'Candidates', component: CandidateList, meta: { title: 'Quản lý ứng viên', resource: 'candidates', action: 'index' } },
+            { path: 'candidate/:id', name: 'Candidates.update', component: CandidateForm, meta: { title: 'Cập nhật ứng viên', resource: 'candidates', action: 'edit' } },
 
             // Industries
             { path: 'industries', name: 'Industries', component: IndustryManagement, meta: { title: 'Quản lý ngành nghề', resource: 'industries', action: 'index' } },

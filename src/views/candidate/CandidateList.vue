@@ -109,6 +109,10 @@
                     <PencilAltIcon class="block h-6 w-6 text-white mr-1" />
                     Sửa
                   </button>
+                  <router-link :to="{ name: 'Candidates.update', params: { id: candidate.id } }" class="btn btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'edit')">
+                    <PencilAltIcon class="block h-6 w-6 text-white mr-1" />
+                    Sửa
+                  </router-link>
                   <button @click="deleteCandidate(candidate.id)" class="btn btn-danger !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'destroy')">
                     <XCircleIcon class="block h-6 w-6 text-white mr-1" />
                     Xóa
