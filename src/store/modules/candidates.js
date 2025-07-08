@@ -48,9 +48,11 @@ export default {
             try {
                 const { lang = 'vi', id} = payload || {};
                 const response = await axiosInstance.get(`candidates/export-cv`, {
-                    params: { lang, id },
-                }, {
                   responseType: 'blob', // Bắt buộc để xử lý file Word
+                  params: {
+                    lang,   // hoặc lang biến động
+                    id       // hoặc id động
+                  }
                 })
             
                 const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })

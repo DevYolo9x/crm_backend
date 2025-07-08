@@ -159,6 +159,20 @@
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">
+                      Ngày sinh
+                      <span class="text-red-600">*</span>
+                    </label>
+                    <Datepicker v-model="currentBirthday" class="form-control" :format="formatDate" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                      Giới tính
+                      <span class="text-red-600">*</span>
+                    </label>
+                    <input v-model="currentGender" type="text" @keydown.enter.prevent class="form-control" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
                       Số điện thoại
                       <span class="text-red-600">*</span>
                       <span v-if="validationErrors.phoneExists" class="text-red-600 text-[12px] ml-1">{{ validationMessageErrors.phoneExists }}</span>
@@ -556,6 +570,7 @@ import { debounce } from 'lodash'
 import { useRoute } from 'vue-router'
 import { cloneDeep } from 'lodash'
 import draggable from 'vuedraggable'
+import Datepicker from 'vue3-datepicker'
 
 import Swal from 'sweetalert2'
 import Title from '../../components/Title.vue'
@@ -634,10 +649,13 @@ const loadingAssignJob = ref(false) // Trạng thái loading khi gán job
 const loadingJobs = ref(false) // Trạng thái loading khi tìm kiếm jobs
 const preview = ref(null)
 const defaultAvatar = ref('') // ảnh fallback
+const currentBirthday = ref('') // Ngày sinh
 const candidateForm = ref({
   full_name: {},
   phone: '',
   email: '',
+  gender: {},
+  birthday: '',
   avatar: {},
   industry_id: [],
   education: {},
@@ -666,6 +684,19 @@ const withContactFileName = computed(() => {
   const url = candidateForm.value.file_cv?.[lang]?.cv_with_contact?.url
   return url ? url.split('/').pop() : ''
 })
+
+const formatDate = (date) => {
+  if (!date) return ''
+      const d = new Date(date)
+      const yyyy = d.getFullYear()
+      const mm = String(d.getMonth() + 1).padStart(2, '0')
+      const dd = String(d.getDate()).padStart(2, '0')
+      return `${yyyy}-${mm}-${dd}`
+}
+
+const formattedBirthday = computed(() =>
+  currentBirthday.value ? formatDate(currentBirthday.value) : ''
+)
 
 // Hiển thị danh sách ngành nghề
 const renderIndustries = (list) => {
@@ -825,6 +856,15 @@ const currentFullName = computed({ // Họ tên
   },
   set(val) {
     candidateForm.value.full_name[lang.value] = val
+  }
+})
+
+const currentGender = computed({ // Họ tên
+  get() {
+    return candidateForm.value.gender[lang.value] || ''
+  },
+  set(val) {
+    candidateForm.value.gender[lang.value] = val
   }
 })
 
@@ -1368,6 +1408,12 @@ const deleteCandidate = async (id) => {
 //   showModal()
 // }
 
+const parseFromApi = (str) => {
+  if (!str) return null
+  const [y, m, d] = str.split('-')
+  return new Date(y, m - 1, d)
+}
+
 
 const editCandidate = (candidate) => {
   selectedCandidate.value = candidate
@@ -1383,6 +1429,8 @@ const editCandidate = (candidate) => {
   const currentLangCV = fileCV[lang.value] || {}
 
   defaultAvatar.value = clone.avatar_url,
+  currentBirthday.value = parseFromApi(clone.birthday)
+  formattedBirthday.value = clone.birthday
 
   // Gán về form
   candidateForm.value = {
@@ -1391,6 +1439,8 @@ const editCandidate = (candidate) => {
     phone: clone.phone || '',
     email: clone.email || '',
     avatar: clone.avatar || {},
+    gender: clone.gender || {},
+    birthday: clone.birthday || '',
     industry_id: clone.industry_id || {},
     education: clone.education || {},
     language: clone.language || {},
@@ -1428,6 +1478,7 @@ const handleSubmit = async () => {
     const formData = new FormData()
     formData.append('id', candidateForm.value.id || 0)
     formData.append('phone', candidateForm.value.phone || '');
+    formData.append('birthday', formattedBirthday.value || '');
     formData.append('email', candidateForm.value.email || '');
     formData.append('language_other', candidateForm.value.language_other || '');
     formData.append('current_location', candidateForm.value.current_location || 0);
@@ -1443,6 +1494,8 @@ const handleSubmit = async () => {
     formData.append('time_education', JSON.stringify(candidateForm.value.timeEducation));
     formData.append('skills', JSON.stringify(candidateForm.value.skills));
     formData.append('work_experience', JSON.stringify(candidateForm.value.work_experience));
+    formData.append('gender', JSON.stringify(candidateForm.value.gender));
+
 
     // Thêm file cv
     Languages.value.forEach(lang => {
