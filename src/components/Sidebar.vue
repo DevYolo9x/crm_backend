@@ -26,7 +26,8 @@ const routeMap = {
   'users.create': '/users',
   'users.update': '/users',
   'roles.create': '/roles',
-  'roles.update': '/roles',
+  'Candidates.update': '/candidate',
+  'Candidates.create': '/candidate',
   'permissions.create': '/permissions',
 }
 

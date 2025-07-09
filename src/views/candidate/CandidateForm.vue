@@ -10,7 +10,7 @@
             <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
             </svg>
-            <router-link :to="{ name: 'jobs.index' }" class="text-sm font-medium hover:text-blue-600 md:ml-2">Quản lý job order</router-link>
+            <router-link :to="{ name: 'Candidates' }" class="text-sm font-medium hover:text-blue-600 md:ml-2">Quản lý ứng viên</router-link>
           </div>
         </li>
         <li>
@@ -317,12 +317,6 @@
                     Huỷ
                   </button>
                 </div>
-
-                <!-- Kinh nghiệm -->
-                <div class="mt-3 hidden">
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Tóm tắt kinh nghiệm và nhận xét</label>
-                  <quill-editor ref="quill" :modules="modules" :toolbar="toolbar" v-model:content="currentExperienceSummary" contentType="html" :key="lang" />
-                </div>
                 
                 <!-- Thông tin CV -->
                 <div class="mt-3">
@@ -397,10 +391,11 @@
             <!-- <pre>Họ và tên: {{ fullName }}</pre> -->
             <!-- <pre>Giới tính: {{ gender }}</pre> -->
             <!-- <pre>Điểm mạnh: {{ strength }}</pre> -->
+            <!-- <pre>Nhóm ngành nghề: {{ industry }}</pre> -->
             <!-- <pre>Học vấn: {{ educationList }}</pre> -->
             <!-- <pre>Ngoại ngữ: {{ languageList }}</pre> -->
-            <pre>Khu vực làm việc: {{ desiredLocation }}</pre>
-            <pre>Chỗ ở hiện tại: {{ location }}</pre>
+            <!-- <pre>Khu vực làm việc: {{ desiredLocation }}</pre> -->
+            <!-- <pre>Chỗ ở hiện tại: {{ location }}</pre> -->
             <!-- <pre>Quá trình học tập: {{ timeEducation }}</pre> -->
             <!-- <pre>Kỹ năng: {{ skills }}</pre> -->
             <!-- <pre>Kinh nghiệm: {{ workExperience }}</pre> -->
@@ -410,7 +405,6 @@
           <div>
           
           <div class="flex justify-end space-x-2">
-            <button @click="closeModal" class="btn btn-danger !w-auto">Hủy</button>
             <button type="submit" class="btn btn-primary !w-auto" v-if="(!selectedCandidate) || selectedCandidate.permission_update == true">{{ selectedCandidate ? 'Cập nhật' : 'Thêm mới' }}</button>
           </div>
           </div>
@@ -480,16 +474,20 @@ const industries = ref([])
 const workExperience = ref({})
 const skills = ref({})
 const fileCv = ref({})
-const currentGender = ref({})
+const currentGender = ref('')
 const gender = ref({})
 const currentEducation = ref({})
 const currentDesiredLocation = ref([])
 const desiredLocation = ref([])
 const currentLanguage = ref({})
-const currentStrength = ref({})
+const currentStrength = ref('')
 const strength = ref({})
 const id = route.params.id
 const timeEducation = ref({})
+const currentFullName = ref('');
+const fullName = ref({})
+const cv_no_contact = ref({})
+const cv_with_contact = ref({})
 const currentTimeEducation = ref({
   time: '',
   school: '',
@@ -517,22 +515,40 @@ const onCurrentLocationChange = () => {
   location.value = currentLocation.value?.id || 0
 }
 
-
-
-
-// Họ và tên
-const currentFullName = ref('');
-const fullName = ref({})
-watch(currentFullName, (newValue) => {
-  fullName.value[lang.value] = newValue
-})
-
 /* START: Theo dõi sự thay đổi của các trường */
 watch(currentStrength, (val) => {
   strength.value[lang.value] = val
 })
+
 watch(currentLanguage, (val) => {
   languageList.value[lang.value] = val
+})
+
+watch(currentIndustry, (val) => {
+  const selectedIds = val.map(i => i.id)
+  // Duyệt qua tất cả ngôn ngữ và đồng bộ theo ID
+  const synced = {}
+  for (const locale in allIndustries.value) {
+    const options = allIndustries.value[locale] || []
+    synced[locale] = options.filter(opt => selectedIds.includes(opt.id))
+  }
+  industry.value = synced
+})
+
+watch(currentFullName, (newValue) => {
+  fullName.value[lang.value] = newValue
+})
+
+watch(currentEducation, (newValue) => {
+  educationList.value[lang.value] = newValue
+})
+
+watch(currentLanguage, (newValue) => {
+  languageList.value[lang.value] = newValue
+})
+
+watch(currentGender, (newValue) => {
+  gender.value[lang.value] = newValue
 })
 /* END: Theo dõi sự thay đổi của các trường */
 
@@ -540,6 +556,16 @@ watch(currentLanguage, (val) => {
 /* START: Khi thay đổi ngôn ngữ tab */
 watch(lang, (newLang) => {
   currentStrength.value = strength.value[newLang]
+  currentFullName.value = fullName.value[newLang]
+  currentGender.value = gender.value[newLang]
+
+  industries.value = allIndustries.value[newLang]
+  educations.value = allEducations.value[newLang]
+  languageOptions.value = allLanguages.value[newLang]
+
+  currentIndustry.value = industry.value[newLang]
+  currentEducation.value = educationList.value[newLang]
+  currentLanguage.value = languageList.value[newLang]
 })
 /* END: Khi thay đổi ngôn ngữ tab */
 
@@ -745,19 +771,53 @@ const addWorkExperience = () => { // Thêm item kinh nghệm làm việc và m�
 };
 /* Chỉnh sửa các bản ghi: Kinh nghệm */
 
-/* File CV */
+/* START: File CV */
+const noContactFileName = computed(() => {
+  const url = fileCv.value?.[lang]?.cv_no_contact?.url
+  return url ? url.split('/').pop() : ''
+})
+
+const withContactFileName = computed(() => {
+  const url = fileCv.value?.[lang]?.cv_with_contact?.url
+  return url ? url.split('/').pop() : ''
+})
+// const onFileChange = (event, field) => {
+//   const file = event.target.files[0]
+//   if (!file) return
+//   const langCode = lang.value
+//   // Khởi tạo structure nếu chưa có
+//   if (!fileCv.value) {
+//     fileCv.value = {}
+//   }
+//   if (!fileCv.value[langCode]) {
+//     fileCv.value[langCode] = {}
+//   }
+//   fileCv.value[langCode][field].file = file
+//   event.target.value = ''
+// }
+
 const onFileChange = (event, field) => {
   const file = event.target.files[0]
   if (!file) return
   const langCode = lang.value
-  // Khởi tạo structure nếu chưa có
+  // Khởi tạo fileCv nếu chưa có
   if (!fileCv.value) {
     fileCv.value = {}
   }
+  // Khởi tạo cho ngôn ngữ nếu chưa có
   if (!fileCv.value[langCode]) {
     fileCv.value[langCode] = {}
   }
+  // Khởi tạo cho loại CV nếu chưa có
+  if (!fileCv.value[langCode][field]) {
+    fileCv.value[langCode][field] = {
+      url: null,
+      file: {}
+    }
+  }
+  // Gán file
   fileCv.value[langCode][field].file = file
+  // Reset input
   event.target.value = ''
 }
 
@@ -769,7 +829,15 @@ const handleFileChange = (event) => {
     preview.value = URL.createObjectURL(file)
   }
 }
-/* File CV */
+
+const getFileName = (url) => {
+  try {
+    return decodeURIComponent(url.split('/').pop())
+  } catch {
+    return url
+  }
+}
+/* END: File CV */
 
 
 // Kiểm tra nếu Lang và id tồn tại hoặc thay đổi thì reload lại các giá trị
@@ -779,23 +847,31 @@ const parseFromApi = (str) => { // Format date
   return new Date(y, m - 1, d)
 }
 
-watchEffect(() => {
-  if (id && allIndustries.value && allIndustries.value[lang.value]) { // Nhóm ngành nghề theo Lang
-    industries.value = allIndustries.value[lang.value]
+const fetchShowJob = async () => {
+  if (!route.params.id) return // Không gọi nếu không có id
+  loading.value = true
+  try {
+    const data = await store.dispatch('candidates/fetchShowCandidate', route.params.id)
+    if (!data || !data.candidate) {
+      throw new Error('Dữ liệu trả về không hợp lệ')
+    }
+
+    if (id && allIndustries.value && allIndustries.value[lang.value]) { // Nhóm ngành nghề theo Lang
+      industries.value = allIndustries.value[lang.value]
     }
     if (id && allEducations.value && allEducations.value[lang.value]) { // Học vấn theo Lang
-        educations.value = allEducations.value[lang.value]
+      educations.value = allEducations.value[lang.value]
     }
     if (id && allLanguages.value && allLanguages.value[lang.value]) { // Ngoại ngữ theo lang
-        languageOptions.value = allLanguages.value[lang.value]
+      languageOptions.value = allLanguages.value[lang.value]
     }
 
     // Cập nhật khi có dữ liệu
-    const candidate = candidates.value.find((item) => item.id == id)
+    const candidate = data.candidate
     const clone = cloneDeep(candidate)
     selectedCandidate.value = clone
 
-    currentFullName.value = clone?.full_name[lang.value] || {}
+    currentFullName.value = clone?.full_name[lang.value] || ''
     fullName.value = clone?.full_name || {}
     currentGender.value = clone?.gender[lang.value] || ''
     gender.value = clone?.gender || {}
@@ -808,6 +884,7 @@ watchEffect(() => {
         p => p.id === clone?.current_location
     ) || null
     location.value = clone?.current_location || ''
+    
     currentIndustry.value = clone?.industry_id?.[lang.value] || []
     industry.value = clone?.industry_id || []
     currentLanguage.value = clone?.language?.[lang.value] || []
@@ -829,7 +906,74 @@ watchEffect(() => {
     workExperience.value = clone?.work_experience || {}
 
     fileCv.value = clone?.file_cv || {}
-})
+    defaultAvatar.value = clone?.avatar_url || ''
+
+    const currentLangCV = fileCv.value[lang.value] || {}
+    cv_no_contact.value = currentLangCV.cv_no_contact || null // dùng để hiển thị tên
+    cv_with_contact.value = currentLangCV.cv_with_contact || null
+    
+  } catch (error) {
+    console.error('Lỗi khi lấy dữ liệu ứng viên:', error)
+    toastr.error('Không thể tải dữ liệu công việc')
+  } finally {
+    loading.value = false
+  }
+}
+
+// watchEffect(() => {
+
+//   if (!id) return
+  
+//   if (id && allIndustries.value && allIndustries.value[lang.value]) { // Nhóm ngành nghề theo Lang
+//     industries.value = allIndustries.value[lang.value]
+//     }
+//     if (id && allEducations.value && allEducations.value[lang.value]) { // Học vấn theo Lang
+//         educations.value = allEducations.value[lang.value]
+//     }
+//     if (id && allLanguages.value && allLanguages.value[lang.value]) { // Ngoại ngữ theo lang
+//         languageOptions.value = allLanguages.value[lang.value]
+//     }
+
+//     // Cập nhật khi có dữ liệu
+//     const candidate = candidates.value.find((item) => item.id == id)
+//     const clone = cloneDeep(candidate)
+//     selectedCandidate.value = clone
+
+//     currentFullName.value = clone?.full_name[lang.value] || ''
+//     fullName.value = clone?.full_name || {}
+//     currentGender.value = clone?.gender[lang.value] || ''
+//     gender.value = clone?.gender || {}
+//     currentPhone.value = clone?.phone || ''
+//     currentEmail.value = clone?.email || ''
+//     currentEducation.value = clone?.education[lang.value] || {}
+//     educationList.value = clone?.education || ''
+//     //currentLocation.value = clone?.current_location || ''
+//     currentLocation.value = provinces.value.find(
+//         p => p.id === clone?.current_location
+//     ) || null
+//     location.value = clone?.current_location || ''
+//     currentIndustry.value = clone?.industry_id?.[lang.value] || []
+//     industry.value = clone?.industry_id || []
+//     currentLanguage.value = clone?.language?.[lang.value] || []
+//     languageList.value = clone?.language || []
+
+//     // Ngày sinh
+//     currentBirthday.value = parseFromApi(clone?.birthday)
+//     formattedBirthday.value = clone?.birthday
+
+//     // Khu vực mong muốn làm việc
+//     const desiredLocationIds = clone?.desired_locations?.map(loc => loc.location_id) || []
+//     currentDesiredLocation.value = provinces.value.filter(p => desiredLocationIds.includes(p.id)) || []
+//     desiredLocation.value = provinces.value.filter(p => desiredLocationIds.includes(p.id)) || []
+
+//     timeEducation.value = clone?.time_education || {}
+//     skills.value = clone?.skills || {}
+//     strength.value = clone?.strength || {}
+//     currentStrength.value = clone?.strength?.[lang.value] || ''
+//     workExperience.value = clone?.work_experience || {}
+
+//     fileCv.value = clone?.file_cv || {}
+// })
 
 
 /* Submit Form */
@@ -862,7 +1006,7 @@ const handleSubmit = async () => {
 
     // Thêm file cv
     Languages.value.forEach(lang => {
-      const langCv = fileCv?.[lang.code]
+      const langCv = fileCv.value?.[lang.code]
       if (!langCv) return
       const noContact = langCv.cv_no_contact?.file
       const withContact = langCv.cv_with_contact?.file
@@ -880,7 +1024,6 @@ const handleSubmit = async () => {
 
     const data = await store.dispatch(action, formData)
     toastr.success(`${data.message}`)
-    closeModal()
   } catch (error) {
     console.log(error)
     handleApiError(error)
@@ -913,12 +1056,11 @@ const validationMessageErrors = reactive({
 })
 
 const checkExists = async () => {
-  const { phone, email } = candidateForm.value
-  const candidate_id = selectedCandidate.value?.id || 0;
-  if (!phone && !email) return // Không cần gọi nếu rỗng
+  const candidate_id = id?? 0;
+  if (!currentPhone && !currentEmail) return // Không cần gọi nếu rỗng
   try {
     const res = await axiosInstance.get('candidates/check-exists', {
-      params: { phone, email, candidate_id }
+      params: { phone, email, id }
     })
     validationErrors.emailExists = res.data.email.status
     validationErrors.phoneExists = res.data.phone.status
@@ -937,7 +1079,30 @@ onMounted(async () => {
     store.dispatch('candidates/fetchConfigCandidate'), 
     store.dispatch('industries/fetchIndustryListsLang'),
     store.dispatch('candidates/fetchCandidates'),
-    store.dispatch('candidates/fetchConfigCandidate')
+    store.dispatch('candidates/fetchConfigCandidate'),
+    fetchShowJob(),
   ])
+
+  if (!route.params.id) {
+    // Gán dữ liệu mặc định
+    industries.value = allIndustries.value['vi'] || []
+    educations.value = allEducations.value['vi'] || []
+    languageOptions.value = allLanguages.value['vi'] || []
+
+    // Gán rỗng cho form
+    fullName.value = {}
+    gender.value = {}
+    educationList.value = {}
+    industry.value = {}
+    languageList.value = {}
+    strength.value = {}
+
+    currentFullName.value = ''
+    currentGender.value = ''
+    currentEducation.value = {}
+    currentIndustry.value = []
+    currentLanguage.value = []
+    currentStrength.value = ''
+  }
 })
 </script>

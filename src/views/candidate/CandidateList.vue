@@ -22,6 +22,10 @@
         <PlusIcon class="block h-6 w-6 text-white" aria-hidden="true" />
         Thêm mới
       </a>
+      <router-link :to="{ name: 'Candidates.create'}" class="btn btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'create')">
+        <PlusIcon class="block h-6 w-6 text-white" aria-hidden="true" />
+        Thêm mới
+      </router-link>
     </div>
     <div class="grid md:grid-cols-12 space-x-1">
       <div class="md:col-span-3">
@@ -105,10 +109,10 @@
                     <PlusIcon class="block h-6 w-6 text-white mr-1" />
                     <span class="text-white">Gán nhân viên</span>
                   </button>
-                  <button @click="editCandidate(candidate)" class="btn btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'edit')">
+                  <!-- <button @click="editCandidate(candidate)" class="btn btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'edit')">
                     <PencilAltIcon class="block h-6 w-6 text-white mr-1" />
                     Sửa
-                  </button>
+                  </button> -->
                   <router-link :to="{ name: 'Candidates.update', params: { id: candidate.id } }" class="btn btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'edit')">
                     <PencilAltIcon class="block h-6 w-6 text-white mr-1" />
                     Sửa
@@ -502,7 +506,7 @@
                 </div>
              </div>
             <!-- Debug -->
-            <pre>{{ candidateForm }}</pre>
+            <!-- <pre>{{ candidateForm }}</pre> -->
           </div>
           <!-- Tabs hoặc lựa chọn ngôn ngữ -->
           <div>

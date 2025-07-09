@@ -76,6 +76,7 @@ const routes = [
             // Candidates
             { path: 'candidate', name: 'Candidates', component: CandidateList, meta: { title: 'Quản lý ứng viên', resource: 'candidates', action: 'index' } },
             { path: 'candidate/:id', name: 'Candidates.update', component: CandidateForm, meta: { title: 'Cập nhật ứng viên', resource: 'candidates', action: 'edit' } },
+            { path: 'candidate/create', name: 'Candidates.create', component: CandidateForm, meta: { title: 'Thêm mới ứng viên', resource: 'candidates', action: 'create' } },
 
             // Industries
             { path: 'industries', name: 'Industries', component: IndustryManagement, meta: { title: 'Quản lý ngành nghề', resource: 'industries', action: 'index' } },

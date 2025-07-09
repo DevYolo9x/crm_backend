@@ -148,6 +148,14 @@ export default {
                 console.error('Lỗi khi lấy cấu hình ứng viên:', error);
             }
         },
+        async fetchShowCandidate({ commit }, id) {
+            try {
+                const { data } = await axiosInstance.get(`candidates/${id}/show`);
+                return data;
+            } catch (error) {
+                throw error;
+            }
+        }
     },
     getters: {
         candidateLists: (state) => state.candidateLists,
