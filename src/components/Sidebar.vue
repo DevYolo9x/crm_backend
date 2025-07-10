@@ -26,12 +26,16 @@ const routeMap = {
   'users.create': '/users',
   'users.update': '/users',
   'roles.create': '/roles',
+  'Candidates': '/candidate',
   'Candidates.update': '/candidate',
   'Candidates.create': '/candidate',
   'permissions.create': '/permissions',
 }
 
-const setActiveMenu = (menuId) => store.dispatch('sidebar/updateActiveMenu', menuId)
+const setActiveMenu = (menuId) => {
+  store.dispatch('sidebar/updateActiveMenu', menuId)
+  activeParentMenuId.value = 0
+}
 
 onMounted(() => {
   const active = routeMap[route.name] || route.path
@@ -76,7 +80,7 @@ const iconMap = {
       <ul class="text-[14px]">
         <li v-for="menu in permittedMenuItems" :key="menu.id">
           <router-link
-            :to="menu.children ? '#' : menu.route || '#'"
+            :to="menu.children ? menu.children[0].route : (menu.route || '#')"
             @click.prevent="menu.children ? toggleChildren(menu.id) : setActiveMenu(menu.id)"
             :class="{
               'bg-primary text-white ': activeMenu === menu.id || activeParentMenuId === menu.id,

@@ -162,8 +162,8 @@ watch(
           <input type="text" class="form-control" placeholder="Nhập từ khóa tìm kiếm" v-model="formFilter.keyword" />
         </div>
         <div v-if="can(userPermissions, 'users', 'create')">
-          <router-link :to="{ name: 'users.create' }" class="btn btn-success !w-auto flex items-center">
-            <PlusIcon class="block h-6 w-6 text-white" aria-hidden="true" />
+          <router-link :to="{ name: 'users.create' }" class="text-[14px] py-[7px] px-[10px] btn-success !w-auto flex items-center">
+            <PlusIcon class="block h-5 w-5 text-white" aria-hidden="true" />
             Thêm mới
           </router-link>
         </div>
@@ -172,15 +172,15 @@ watch(
     <div class="relative">
       <Loading :loading="loading" />
       <table class="table-order text-sm w-full text-left rtl:text-right">
-        <thead class="text-white bg-primary dark:bg-gray-700 dark:text-gray-400">
+        <thead class=" bg-[#e5e5e5] dark:bg-gray-700 dark:text-gray-400">
           <tr class="">
-            <th class="">STT</th>
-            <th class="">CODE</th>
-            <th class="">Tên nhân viên</th>
+            <th class="font-medium">STT</th>
+            <th class="font-medium">CODE</th>
+            <th class="font-medium">Tên nhân viên</th>
             <th class="hidden">Token</th>
-            <th class="">Nhóm nhân viên</th>
-            <th class="">Cập nhật mới nhất</th>
-            <th class="text-right" v-if="can(userPermissions, 'users', 'edit') || can(userPermissions, 'users', 'destroy')">Thao tác</th>
+            <th class="font-medium">Nhóm nhân viên</th>
+            <th class="font-medium">Cập nhật mới nhất</th>
+            <th class="text-right font-medium" v-if="can(userPermissions, 'users', 'edit') || can(userPermissions, 'users', 'destroy')">Thao tác</th>
           </tr>
         </thead>
         <tbody>
@@ -188,7 +188,7 @@ watch(
             <td>{{ key + 1 }}</td>
             <td class="font-bold text-blue-600">{{ user.code }}</td>
             <td>
-              <span class="font-bold">{{ user.name }}</span>
+              <span class="font-medium">{{ user.name }}</span>
               <br />
               {{ user.account }}
               <br />
@@ -214,14 +214,14 @@ watch(
                     name: 'users.update',
                     params: { id: user.id },
                   }"
-                  class="btn btn-primary !w-auto flex items-center"
+                  class="text-[14px] py-[7px] px-[10px] btn-primary !w-auto flex items-center"
                   v-if="can(userPermissions, 'users', 'edit')"
                 >
-                  <PencilAltIcon class="block h-6 w-6 text-white mr-1" />
+                  <PencilAltIcon class="block h-5 w-5 text-white mr-1" />
                   Sửa
                 </router-link>
-                <button @click="deleteUser(user.id)" class="btn btn-danger !w-auto flex items-center" v-if="can(userPermissions, 'users', 'destroy')">
-                  <XCircleIcon class="block h-6 w-6 text-white mr-1" />
+                <button @click="deleteUser(user.id)" class="text-[14px] py-[7px] px-[10px] btn-danger !w-auto flex items-center" v-if="can(userPermissions, 'users', 'destroy')">
+                  <XCircleIcon class="block h-5 w-5 text-white mr-1" />
                   Xóa
                 </button>
               </div>

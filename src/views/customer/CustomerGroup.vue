@@ -23,8 +23,8 @@
       <div class="flex items-center space-x-1" v-if="can(userPermissions, 'customer_groups', 'create')">
         <div class="flex space-x-1">
           <input type="text" class="form-control flex-1" placeholder="Nhập từ khóa tìm kiếm" v-model="formFilter.keyword" />
-          <a href="" class="btn btn-success !w-auto flex items-center" @click.prevent="showModal">
-            <PlusIcon class="block h-6 w-6 text-white" aria-hidden="true" />
+          <a href="" class="text-[14px] py-[7px] px-[10px] btn-success !w-auto flex items-center" @click.prevent="showModal">
+            <PlusIcon class="block h-5 w-5 text-white" aria-hidden="true" />
             Thêm mới
           </a>
         </div>
@@ -32,31 +32,31 @@
     </div>
     <div>
       <table class="table-order text-sm w-full text-left rtl:text-right">
-        <thead class="text-white bg-primary dark:bg-gray-700 dark:text-gray-400">
+        <thead class="bg-[#e5e5e5] dark:bg-gray-700 dark:text-gray-400">
           <tr class="">
-            <th class="">STT</th>
-            <th class="">Tiêu đề</th>
-            <th class="">Ngày tạo</th>
-            <th class="text-right" v-if="can(userPermissions, 'customer_groups', 'edit') || can(userPermissions, 'customer_groups', 'destroy')">Thao tác</th>
+            <th class="font-medium">STT</th>
+            <th class="font-medium">Tiêu đề</th>
+            <th class="font-medium">Ngày tạo</th>
+            <th class="font-medium text-right" v-if="can(userPermissions, 'customer_groups', 'edit') || can(userPermissions, 'customer_groups', 'destroy')">Thao tác</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(group, key) in groups" :key="group.id" class="border-b hover:bg-gray-100">
             <td>{{ key + 1 }}</td>
 
-            <td class="font-bold">
+            <td class="font-medium">
               {{ group.title }}
               <span class="text-red-600">({{ group.customer_count }})</span>
             </td>
             <td>{{ group.created_at }}</td>
             <td v-if="can(userPermissions, 'customer_groups', 'edit') || can(userPermissions, 'customer_groups', 'destroy')">
               <div class="flex items-center space-x-1 justify-end">
-                <button @click="editGroup(group)" class="btn btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'customer_groups', 'edit')">
-                  <PencilAltIcon class="block h-6 w-6 text-white mr-1" />
+                <button @click="editGroup(group)" class="text-[14px] py-[7px] px-[10px] btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'customer_groups', 'edit')">
+                  <PencilAltIcon class="block h-5 w-5 text-white mr-1" />
                   Sửa
                 </button>
-                <button @click="deleteGroup(group.id)" class="btn btn-danger !w-auto flex items-center" v-if="can(userPermissions, 'customer_groups', 'destroy')">
-                  <XCircleIcon class="block h-6 w-6 text-white mr-1" />
+                <button @click="deleteGroup(group.id)" class="text-[14px] py-[7px] px-[10px] btn-danger !w-auto flex items-center" v-if="can(userPermissions, 'customer_groups', 'destroy')">
+                  <XCircleIcon class="block h-5 w-5 text-white mr-1" />
                   Xóa
                 </button>
               </div>
@@ -89,8 +89,8 @@
             <input v-model="groupForm.title" type="text" class="form-control" />
           </div>
           <div class="flex justify-end space-x-2">
-            <button @click="closeModal" class="btn btn-danger !w-auto">Hủy</button>
-            <button type="submit" class="btn btn-primary !w-auto">{{ selectedGroup ? 'Cập Nhật' : 'Thêm mới' }}</button>
+            <button @click="closeModal" class="text-[14px] py-[7px] px-[10px] btn-danger !w-auto">Hủy</button>
+            <button type="submit" class="text-[14px] py-[7px] px-[10px] btn-primary !w-auto">{{ selectedGroup ? 'Cập Nhật' : 'Thêm mới' }}</button>
           </div>
         </form>
       </div>

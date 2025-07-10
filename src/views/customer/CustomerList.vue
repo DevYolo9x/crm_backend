@@ -27,25 +27,25 @@
         <div :class="can(userPermissions, 'customers', 'create') ? `md:col-span-2` : `md:col-span-3`">
           <input type="text" class="form-control flex-1" placeholder="Nhập từ khóa tìm kiếm" v-model="formFilter.keyword" />
         </div>
-        <a href="" class="btn btn-success !w-auto flex items-center" @click.prevent="showModal" v-if="can(userPermissions, 'customers', 'create')">
-          <PlusIcon class="block h-6 w-6 text-white" aria-hidden="true" />
+        <a href="" class="text-[14px] py-[7px] px-[10px] btn-success !w-auto flex items-center" @click.prevent="showModal" v-if="can(userPermissions, 'customers', 'create')">
+          <PlusIcon class="block h-5 w-5 text-white" aria-hidden="true" />
           Thêm mới
         </a>
       </div>
     </div>
     <div>
       <table class="table-order text-sm w-full text-left rtl:text-right">
-        <thead class="text-white bg-primary dark:bg-gray-700 dark:text-gray-400">
+        <thead class="bg-[#e5e5e5] dark:bg-gray-700 dark:text-gray-400">
           <tr class="">
-            <th class="">STT</th>
-            <th class="p-2">CODE</th>
-            <th class="p-2">Thông tin khách hàng</th>
-            <th class="p-2">Nhóm</th>
-            <th class="p-2">Mã số thuế</th>
-            <th class="p-2">Số điện thoại</th>
-            <th class="p-2">Email</th>
-            <th class="p-2">File đính kèm</th>
-            <th class="text-right" v-if="can(userPermissions, 'customers', 'edit') || can(userPermissions, 'customers', 'destroy')">Thao tác</th>
+            <th class="font-medium">STT</th>
+            <th class="p-2 font-medium">CODE</th>
+            <th class="p-2 font-medium">Thông tin khách hàng</th>
+            <th class="p-2 font-medium">Nhóm</th>
+            <th class="p-2 font-medium">Mã số thuế</th>
+            <th class="p-2 font-medium">Số điện thoại</th>
+            <th class="p-2 font-medium">Email</th>
+            <th class="p-2 font-medium">File đính kèm</th>
+            <th class="text-right font-medium" v-if="can(userPermissions, 'customers', 'edit') || can(userPermissions, 'customers', 'destroy')">Thao tác</th>
           </tr>
         </thead>
         <tbody>
@@ -64,12 +64,12 @@
             </td>
             <td v-if="can(userPermissions, 'customers', 'edit') || can(userPermissions, 'customers', 'destroy')">
               <div class="flex items-center space-x-1 justify-end">
-                <button @click="editCustomer(customer)" class="btn btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'customers', 'edit')">
-                  <PencilAltIcon class="block h-6 w-6 text-white mr-1" />
+                <button @click="editCustomer(customer)" class="text-[14px] py-[7px] px-[10px] btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'customers', 'edit')">
+                  <PencilAltIcon class="block h-5 w-5 text-white mr-1" />
                   Sửa
                 </button>
-                <button @click="deleteCustomer(customer.id)" class="btn btn-danger !w-auto flex items-center" v-if="can(userPermissions, 'customers', 'destroy')">
-                  <XCircleIcon class="block h-6 w-6 text-white mr-1" />
+                <button @click="deleteCustomer(customer.id)" class="text-[14px] py-[7px] px-[10px] btn-danger !w-auto flex items-center" v-if="can(userPermissions, 'customers', 'destroy')">
+                  <XCircleIcon class="block h-5 w-5 text-white mr-1" />
                   Xóa
                 </button>
               </div>
@@ -162,8 +162,8 @@
             </ul>
           </div>
           <div class="flex justify-end space-x-2">
-            <button @click="closeModal" class="btn btn-danger !w-auto">Hủy</button>
-            <button type="submit" class="btn btn-primary !w-auto">{{ selectedCustomer ? 'Cập Nhật' : 'Thêm mới' }}</button>
+            <button @click="closeModal" class="text-[14px] py-[7px] px-[10px] btn-danger !w-auto">Hủy</button>
+            <button type="submit" class="text-[14px] py-[7px] px-[10px] btn-primary !w-auto">{{ selectedCustomer ? 'Cập Nhật' : 'Thêm mới' }}</button>
           </div>
         </form>
       </div>

@@ -29,18 +29,18 @@
     <!-- Table -->
     <div class="overflow-x-auto">
       <table class="table-order w-full text-sm text-left">
-        <thead class="text-white bg-primary">
+        <thead class=" bg-[#e5e5e5]">
           <tr>
-            <th class="p-2">STT</th>
-            <th class="p-2">Hành động</th>
-            <th class="p-2">Người tạo</th>
-            <th class="p-2">Ngày tạo</th>
+            <th class="p-2 font-medium">STT</th>
+            <th class="p-2 font-medium">Hành động</th>
+            <th class="p-2 font-medium">Người tạo</th>
+            <th class="p-2 font-medium">Ngày tạo</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="log in logs" :key="log.id" class="border-b hover:bg-gray-100">
             <td class="p-2">{{ log.id }}</td>
-            <td class="p-2 font-bold">{{ log.action }}</td>
+            <td class="p-2 font-medium">{{ log.action }}</td>
             <td class="p-2">{{ log.user }}</td>
             <td class="p-2">{{ log.created_at }}</td>
           </tr>

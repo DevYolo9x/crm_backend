@@ -108,7 +108,7 @@
                       Khu vực mong muốn làm việc
                       <span class="text-red-600">*</span>
                     </label>
-                    <VueMultiselect v-model="currentDesiredLocation" :options="provinces" :taggable="true" label="name" :searchable="true" track-by="id" @select="onDesiredLocationChange" multiple placeholder="Chọn"></VueMultiselect>
+                    <VueMultiselect v-model="currentDesiredLocation" :options="provinces" :taggable="true" label="name" :searchable="true" track-by="id" multiple placeholder="Chọn"></VueMultiselect>
                   </div>
                 </div>
 
@@ -388,6 +388,7 @@
                 </div>
              </div>
             <!-- Debug -->
+            <!-- <pre>Ảnh: {{ defaultAvatar }}</pre> -->
             <!-- <pre>Họ và tên: {{ fullName }}</pre> -->
             <!-- <pre>Giới tính: {{ gender }}</pre> -->
             <!-- <pre>Điểm mạnh: {{ strength }}</pre> -->
@@ -415,10 +416,10 @@
 
 <script setup>
 import { PlusIcon, PencilAltIcon, XCircleIcon, EyeIcon, CloudDownloadIcon, DownloadIcon, AcademicCapIcon } from '@heroicons/vue/solid'
-import { ref, onMounted, computed, reactive, watch, watchEffect } from 'vue'
+import { ref, onMounted, computed, reactive, watch, watchEffect, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import { debounce } from 'lodash'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { cloneDeep } from 'lodash'
 import draggable from 'vuedraggable'
 import Datepicker from 'vue3-datepicker'
@@ -445,6 +446,7 @@ const toolbar = [[{ header: [1, 2, 3, 4, 5, 6, false] }], [{ size: ['small', fal
 const toastr = useToastr()
 const route = useRoute()
 const store = useStore()
+const router = useRouter()
 
 const candidates = computed(() => store.getters['candidates/candidates'])
 const pagination = computed(() => store.getters['candidates/pagination'])
@@ -547,11 +549,14 @@ watch(currentLanguage, (newValue) => {
   languageList.value[lang.value] = newValue
 })
 
+watch(currentDesiredLocation, (newValue) => {
+  desiredLocation.value = newValue.map(loc => loc.id) || []
+})
+
 watch(currentGender, (newValue) => {
   gender.value[lang.value] = newValue
 })
 /* END: Theo dõi sự thay đổi của các trường */
-
 
 /* START: Khi thay đổi ngôn ngữ tab */
 watch(lang, (newLang) => {
@@ -578,7 +583,6 @@ const formatDate = (date) => {
       const dd = String(d.getDate()).padStart(2, '0')
       return `${yyyy}-${mm}-${dd}`
 }
-
 const formattedBirthday = computed(() =>
   currentBirthday.value ? formatDate(currentBirthday.value) : ''
 )
@@ -730,7 +734,7 @@ const editItemExperience = (index) => { // Chỉnh sửa
 };
 
 const existWorkExperience = () => {
-  currentWorkExperience.value = {description: ''}; // Reset form
+  currentWorkExperience.value = {description: '<p><br></p>'}; // Reset form
   selectedIndexWorkExperience.value = null // Reset lại chọn cập nhật kinh nghiệm làm việc
 }
 
@@ -781,20 +785,6 @@ const withContactFileName = computed(() => {
   const url = fileCv.value?.[lang]?.cv_with_contact?.url
   return url ? url.split('/').pop() : ''
 })
-// const onFileChange = (event, field) => {
-//   const file = event.target.files[0]
-//   if (!file) return
-//   const langCode = lang.value
-//   // Khởi tạo structure nếu chưa có
-//   if (!fileCv.value) {
-//     fileCv.value = {}
-//   }
-//   if (!fileCv.value[langCode]) {
-//     fileCv.value[langCode] = {}
-//   }
-//   fileCv.value[langCode][field].file = file
-//   event.target.value = ''
-// }
 
 const onFileChange = (event, field) => {
   const file = event.target.files[0]
@@ -897,7 +887,8 @@ const fetchShowJob = async () => {
     // Khu vực mong muốn làm việc
     const desiredLocationIds = clone?.desired_locations?.map(loc => loc.location_id) || []
     currentDesiredLocation.value = provinces.value.filter(p => desiredLocationIds.includes(p.id)) || []
-    desiredLocation.value = provinces.value.filter(p => desiredLocationIds.includes(p.id)) || []
+    //desiredLocation.value = provinces.value.filter(p => desiredLocationIds.includes(p.id)) || []
+    desiredLocation.value = clone?.desired_locations?.map(loc => loc.location_id) || []
 
     timeEducation.value = clone?.time_education || {}
     skills.value = clone?.skills || {}
@@ -919,62 +910,6 @@ const fetchShowJob = async () => {
     loading.value = false
   }
 }
-
-// watchEffect(() => {
-
-//   if (!id) return
-  
-//   if (id && allIndustries.value && allIndustries.value[lang.value]) { // Nhóm ngành nghề theo Lang
-//     industries.value = allIndustries.value[lang.value]
-//     }
-//     if (id && allEducations.value && allEducations.value[lang.value]) { // Học vấn theo Lang
-//         educations.value = allEducations.value[lang.value]
-//     }
-//     if (id && allLanguages.value && allLanguages.value[lang.value]) { // Ngoại ngữ theo lang
-//         languageOptions.value = allLanguages.value[lang.value]
-//     }
-
-//     // Cập nhật khi có dữ liệu
-//     const candidate = candidates.value.find((item) => item.id == id)
-//     const clone = cloneDeep(candidate)
-//     selectedCandidate.value = clone
-
-//     currentFullName.value = clone?.full_name[lang.value] || ''
-//     fullName.value = clone?.full_name || {}
-//     currentGender.value = clone?.gender[lang.value] || ''
-//     gender.value = clone?.gender || {}
-//     currentPhone.value = clone?.phone || ''
-//     currentEmail.value = clone?.email || ''
-//     currentEducation.value = clone?.education[lang.value] || {}
-//     educationList.value = clone?.education || ''
-//     //currentLocation.value = clone?.current_location || ''
-//     currentLocation.value = provinces.value.find(
-//         p => p.id === clone?.current_location
-//     ) || null
-//     location.value = clone?.current_location || ''
-//     currentIndustry.value = clone?.industry_id?.[lang.value] || []
-//     industry.value = clone?.industry_id || []
-//     currentLanguage.value = clone?.language?.[lang.value] || []
-//     languageList.value = clone?.language || []
-
-//     // Ngày sinh
-//     currentBirthday.value = parseFromApi(clone?.birthday)
-//     formattedBirthday.value = clone?.birthday
-
-//     // Khu vực mong muốn làm việc
-//     const desiredLocationIds = clone?.desired_locations?.map(loc => loc.location_id) || []
-//     currentDesiredLocation.value = provinces.value.filter(p => desiredLocationIds.includes(p.id)) || []
-//     desiredLocation.value = provinces.value.filter(p => desiredLocationIds.includes(p.id)) || []
-
-//     timeEducation.value = clone?.time_education || {}
-//     skills.value = clone?.skills || {}
-//     strength.value = clone?.strength || {}
-//     currentStrength.value = clone?.strength?.[lang.value] || ''
-//     workExperience.value = clone?.work_experience || {}
-
-//     fileCv.value = clone?.file_cv || {}
-// })
-
 
 /* Submit Form */
 const handleSubmit = async () => {
@@ -1024,6 +959,7 @@ const handleSubmit = async () => {
 
     const data = await store.dispatch(action, formData)
     toastr.success(`${data.message}`)
+    router.push({ name: 'Candidates' })
   } catch (error) {
     console.log(error)
     handleApiError(error)
@@ -1045,22 +981,12 @@ const downloadCandidateCV = (lang = 'vi') => {
 /*==================================================*/
 
 /* START: Check thông tin tồn tại */
-const validationErrors = reactive({
-  phoneExists: false,
-  emailExists: false,
-})
-
-const validationMessageErrors = reactive({
-  phoneExists: '',
-  emailExists: '',
-})
-
 const checkExists = async () => {
   const candidate_id = id?? 0;
-  if (!currentPhone && !currentEmail) return // Không cần gọi nếu rỗng
+  if (!currentPhone.value && !currentEmail.value) return // Không cần gọi nếu rỗng
   try {
     const res = await axiosInstance.get('candidates/check-exists', {
-      params: { phone, email, id }
+      params: { phone:currentPhone.value, email:currentEmail.value, id }
     })
     validationErrors.emailExists = res.data.email.status
     validationErrors.phoneExists = res.data.phone.status
@@ -1071,6 +997,25 @@ const checkExists = async () => {
     console.error('Lỗi khi kiểm tra tồn tại:', error)
   }
 }
+const debouncedCheck = debounce(() => {
+  checkExists()
+  console.log(123)
+}, 500)
+
+const validationErrors = reactive({
+  phoneExists: false,
+  emailExists: false,
+})
+
+const validationMessageErrors = reactive({
+  phoneExists: '',
+  emailExists: '',
+})
+
+watch(
+  [currentPhone, currentEmail],
+  debouncedCheck
+)
 /* END: Check thông tin tồn tại */
 
 onMounted(async () => {

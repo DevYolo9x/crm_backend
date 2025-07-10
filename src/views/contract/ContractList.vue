@@ -41,41 +41,41 @@
         <div :class="can(userPermissions, 'contracts', 'create') ? `md:col-span-2` : `md:col-span-3`">
           <input type="text" class="form-control flex-1" placeholder="Nhập từ khóa tìm kiếm" v-model="formFilter.keyword" />
         </div>
-        <router-link v-if="can(userPermissions, 'contracts', 'create')" :to="{ name: 'ContractCreate' }" class="btn btn-success !w-auto flex items-center">
-          <PlusIcon class="block h-6 w-6 text-white" aria-hidden="true" />
+        <router-link v-if="can(userPermissions, 'contracts', 'create')" :to="{ name: 'ContractCreate' }" class="text-[14px] py-[7px] px-[10px] btn-success !w-auto flex items-center">
+          <PlusIcon class="block h-5 w-5 text-white" aria-hidden="true" />
           Thêm mới
         </router-link>
       </div>
     </div>
     <div>
       <table class="table-order text-sm w-full text-left rtl:text-right">
-        <thead class="text-white bg-primary dark:bg-gray-700 dark:text-gray-400">
+        <thead class=" bg-[#e5e5e5] dark:bg-gray-700 dark:text-gray-400">
           <tr>
-            <th class="cursor-pointer" @click="sort('id')">
+            <th class="cursor-pointer font-medium" @click="sort('id')">
               ID
               <span v-if="sortColumn === 'id'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
               <span v-else>↕</span>
             </th>
-            <th class="cursor-pointer" @click="sort('name')">
+            <th class="cursor-pointer font-medium" @click="sort('name')">
               Tên hợp đồng
               <span v-if="sortColumn === 'name'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
               <span v-else>↕</span>
             </th>
-            <th>Khách hàng</th>
-            <th>Người chịu trách nhiệm</th>
-            <th class="cursor-pointer" @click="sort('total_amount')">
+            <th class="font-medium">Khách hàng</th>
+            <th class="font-medium">Người chịu trách nhiệm</th>
+            <th class="cursor-pointer font-medium" @click="sort('total_amount')">
               Số tiền hợp đồng (VND)
               <span v-if="sortColumn === 'total_amount'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
               <span v-else>↕</span>
             </th>
-            <th class="cursor-pointer" @click="sort('warranty_end_date')">
+            <th class="cursor-pointer font-medium" @click="sort('warranty_end_date')">
               Ngày kết thúc bảo hành
               <span v-if="sortColumn === 'warranty_end_date'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
               <span v-else>↕</span>
             </th>
-            <th>Ghi chú</th>
-            <th>Người tạo</th>
-            <th class="cursor-pointer" @click="sort('created_at')">
+            <th class="font-medium">Ghi chú</th>
+            <th class="font-medium">Người tạo</th>
+            <th class="cursor-pointer font-medium" @click="sort('created_at')">
               Ngày tạo
               <span v-if="sortColumn === 'created_at'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
               <span v-else>↕</span>
@@ -86,7 +86,7 @@
         <tbody>
           <tr v-for="contract in contracts" :key="contract.id" class="border-b hover:bg-gray-100">
             <td>{{ contract.id }}</td>
-            <td class="font-bold">
+            <td class="font-medium">
               <router-link :to="{ name: 'ContractEdit', params: { id: contract.id } }" class="text-blue-600 underline">
                 {{ contract.name }}
               </router-link>
@@ -102,16 +102,16 @@
             <td>{{ contract.created_at }}</td>
             <td v-if="can(userPermissions, 'contracts', 'edit') || can(userPermissions, 'contracts', 'destroy')">
               <div class="flex items-center space-x-1 justify-end">
-                <router-link :to="{ name: 'ContractDetail', params: { id: contract.id } }" class="btn btn-warning !w-auto flex items-center" v-if="can(userPermissions, 'contracts', 'index')">
-                  <EyeIcon class="block h-6 w-6 text-white mr-1" />
+                <router-link :to="{ name: 'ContractDetail', params: { id: contract.id } }" class="text-[14px] py-[7px] px-[10px] btn-warning !w-auto flex items-center" v-if="can(userPermissions, 'contracts', 'index')">
+                  <EyeIcon class="block h-5 w-5 text-white mr-1" />
                   Xem
                 </router-link>
-                <router-link :to="{ name: 'ContractEdit', params: { id: contract.id } }" class="btn btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'contracts', 'edit')">
-                  <PencilAltIcon class="block h-6 w-6 text-white mr-1" />
+                <router-link :to="{ name: 'ContractEdit', params: { id: contract.id } }" class="text-[14px] py-[7px] px-[10px] btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'contracts', 'edit')">
+                  <PencilAltIcon class="block h-5 w-5 text-white mr-1" />
                   Sửa
                 </router-link>
-                <button @click="deleteContract(contract.id)" class="btn btn-danger !w-auto flex items-center" v-if="can(userPermissions, 'contracts', 'destroy')">
-                  <XCircleIcon class="block h-6 w-6 text-white mr-1" />
+                <button @click="deleteContract(contract.id)" class="text-[14px] py-[7px] px-[10px] btn-danger !w-auto flex items-center" v-if="can(userPermissions, 'contracts', 'destroy')">
+                  <XCircleIcon class="block h-5 w-5 text-white mr-1" />
                   Xóa
                 </button>
               </div>

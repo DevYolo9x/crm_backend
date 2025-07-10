@@ -35,14 +35,14 @@
     <Loading :loading="loading" />
     <!-- Form gán ứng viên -->
     <div class="p-4 shadow-md">
-      <h3 class="text-lg font-bold mb-4">Thêm mới ứng viên</h3>
+      <h3 class="text-lg font-medium mb-4">Thêm mới ứng viên</h3>
       <form @submit.prevent="assignCandidate">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
           <div class="col-span-5">
             <VueMultiselect v-model="form.candidate_id" :options="candidateOptions" label="name" track-by="id" placeholder="Tìm kiếm ứng viên" :searchable="true" :loading="isLoadingCandidates" :internal-search="false" @search-change="searchCandidates" @open="searchCandidates('')" />
           </div>
           <div class="col-span-2">
-            <button type="submit" class="btn btn-success !w-auto flex items-center !h-[43px]">Gán ứng viên</button>
+            <button type="submit" class="text-[14px] py-[7px] px-[10px] btn-success !w-auto flex items-center !h-[43px]">Gán ứng viên</button>
           </div>
         </div>
       </form>
@@ -50,16 +50,16 @@
 
     <!-- Danh sách ứng viên đã gán -->
     <div class="p-4 shadow-md">
-      <h3 class="text-lg font-bold mb-4">Danh sách ứng viên</h3>
+      <h3 class="text-lg font-medium mb-4">Danh sách ứng viên</h3>
       <table class="w-full text-sm text-left">
-        <thead class="text-white bg-primary">
+        <thead class=" bg-[#e5e5e5]">
           <tr>
-            <th class="px-4 py-2">STT</th>
-            <th class="px-4 py-2">Ngày tạo</th>
-            <th class="px-4 py-2">Ứng viên</th>
-            <th class="px-4 py-2">Nhân viên phụ trách</th>
-            <th class="px-4 py-2">Trạng thái</th>
-            <th class="px-4 py-2 text-right">Thao tác</th>
+            <th class="px-4 py-2 font-medium">STT</th>
+            <th class="px-4 py-2 font-medium">Ngày tạo</th>
+            <th class="px-4 py-2 font-medium">Ứng viên</th>
+            <th class="px-4 py-2 font-medium">Nhân viên phụ trách</th>
+            <th class="px-4 py-2 font-medium">Trạng thái</th>
+            <th class="px-4 py-2 text-right font-medium">Thao tác</th>
           </tr>
         </thead>
         <tbody>
@@ -88,12 +88,12 @@
             </td>
             <td class="px-4 py-2 w-36">
               <div class="flex justify-end space-x-2">
-                <button @click="showCandidate(candidateJob.candidate_id)" class="btn btn-warning !w-auto flex items-center">
-                  <EyeIcon class="block h-6 w-6 text-white mr-1" />
+                <button @click="showCandidate(candidateJob.candidate_id)" class="text-[14px] py-[7px] px-[10px] btn-warning !w-auto flex items-center">
+                  <EyeIcon class="block h-5 w-5 text-white mr-1" />
                   Xem
                 </button>
-                <button @click="deleteCandidateJob(candidateJob.id)" class="btn btn-danger !w-auto flex items-center">
-                  <XCircleIcon class="block h-6 w-6 text-white mr-1" />
+                <button @click="deleteCandidateJob(candidateJob.id)" class="text-[14px] py-[7px] px-[10px] btn-danger !w-auto flex items-center">
+                  <XCircleIcon class="block h-5 w-5 text-white mr-1" />
                   Xóa
                 </button>
               </div>

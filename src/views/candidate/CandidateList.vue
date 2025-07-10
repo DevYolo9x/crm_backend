@@ -18,12 +18,12 @@
     <Loading :loading="loading" />
     <div class="flex items-center justify-between">
       <Title :title="route.meta.title" />
-      <a href="" v-if="can(userPermissions, 'candidates', 'create')" class="btn btn-success !w-auto flex items-center" @click.prevent="showModal">
+      <!-- <a href="" v-if="can(userPermissions, 'candidates', 'create')" class="btn btn-success !w-auto flex items-center" @click.prevent="showModal">
         <PlusIcon class="block h-6 w-6 text-white" aria-hidden="true" />
         Thêm mới
-      </a>
-      <router-link :to="{ name: 'Candidates.create'}" class="btn btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'create')">
-        <PlusIcon class="block h-6 w-6 text-white" aria-hidden="true" />
+      </a> -->
+      <router-link :to="{ name: 'Candidates.create'}" class="text-[14px] py-[7px] px-[10px] btn-success !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'create')">
+        <PlusIcon class="block h-5 w-5 text-white" aria-hidden="true" />
         Thêm mới
       </router-link>
     </div>
@@ -58,24 +58,24 @@
     </div>
     <div>
       <table class="table-order text-sm w-full text-left rtl:text-right">
-        <thead class="text-white bg-primary dark:bg-gray-700 dark:text-gray-400">
+        <thead class=" bg-[#e5e5e5] dark:bg-gray-700 dark:text-gray-400">
           <tr>
-            <th>STT</th>
-            <th>Code</th>
-            <th>Thông tin</th>
-            <th>Ngành nghề</th>
-            <th>Ngày hết hạn</th>
-            <th>Ngày tạo</th>
-            <th>Người tạo</th>
-            <th class="text-right" v-if="can(userPermissions, 'candidates', 'edit') || can(userPermissions, 'candidates', 'destroy')">Thao tác</th>
+            <th class="font-medium">STT</th>
+            <th class="font-medium">Code</th>
+            <th class="font-medium">Thông tin</th>
+            <th class="font-medium">Ngành nghề</th>
+            <th class="font-medium">Ngày hết hạn</th>
+            <th class="font-medium">Ngày tạo</th>
+            <th class="font-medium">Người tạo</th>
+            <th class="text-right font-medium" v-if="can(userPermissions, 'candidates', 'edit') || can(userPermissions, 'candidates', 'destroy')">Thao tác</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(candidate, key) in candidates" :key="candidate.id" class="border-b hover:bg-gray-100">
             <td>{{ key + 1 }}</td>
-            <td class="font-bold text-blue-600">{{ candidate.code }}</td>
+            <td class="font-medium text-blue-600">{{ candidate.code }}</td>
             <td class="">
-              <span class="font-bold">{{ candidate.full_name.vi }}</span>
+              <span class="font-medium">{{ candidate.full_name.vi }}</span>
               <br />
               {{ candidate.email }}
               <br />
@@ -91,34 +91,34 @@
             <td v-if="can(userPermissions, 'candidates', 'edit') || can(userPermissions, 'candidates', 'destroy')">
               <div class="whitespace-nowrap flex flex-col space-y-1">
                 <div class="flex items-center space-x-1 justify-end">
-                  <button @click.prevent="downloadCandidateCV()" class="btn btn-success !w-auto flex items-center">
-                    <DownloadIcon class="block h-6 w-6 text-white mr-1" />
+                  <!-- <button @click.prevent="downloadCandidateCV()" class="text-[14px] py-[7px] px-[10px] btn-success !w-auto flex items-center">
+                    <DownloadIcon class="block h-5 w-5 text-white mr-1" />
                     Xuất file
-                  </button>
-                  <button @click="openAssignJobPopup(candidate.id)" class="btn btn-success !w-auto flex items-center">
-                    <PlusIcon class="block h-6 w-6 text-white mr-1" />
+                  </button> -->
+                  <button @click="openAssignJobPopup(candidate.id)" class="text-[14px] py-[7px] px-[10px] btn-success !w-auto flex items-center">
+                    <PlusIcon class="block h-5 w-5 text-white mr-1" />
                     Gán Job
                   </button>
-                  <button @click="showCandidate(candidate.id)" class="btn btn-warning !w-auto flex items-center">
-                    <EyeIcon class="block h-6 w-6 text-white mr-1" />
+                  <!-- <button @click="showCandidate(candidate.id)" class="text-[14px] py-[7px] px-[10px] btn-warning !w-auto flex items-center">
+                    <EyeIcon class="block h-5 w-5 text-white mr-1" />
                     Xem
-                  </button>
+                  </button> -->
                 </div>
                 <div class="flex items-center space-x-1 justify-end">
-                  <button @click="openToggleAssignUserPopup(candidate.id)" class="btn bg-black !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'administrator')">
-                    <PlusIcon class="block h-6 w-6 text-white mr-1" />
+                  <button @click="openToggleAssignUserPopup(candidate.id)" class="text-[14px] py-[7px] px-[10px] bg-black !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'administrator')">
+                    <PlusIcon class="block h-5 w-5 text-white mr-1" />
                     <span class="text-white">Gán nhân viên</span>
                   </button>
                   <!-- <button @click="editCandidate(candidate)" class="btn btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'edit')">
                     <PencilAltIcon class="block h-6 w-6 text-white mr-1" />
                     Sửa
                   </button> -->
-                  <router-link :to="{ name: 'Candidates.update', params: { id: candidate.id } }" class="btn btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'edit')">
-                    <PencilAltIcon class="block h-6 w-6 text-white mr-1" />
+                  <router-link :to="{ name: 'Candidates.update', params: { id: candidate.id } }" class="text-[14px] py-[7px] px-[10px] btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'edit')">
+                    <PencilAltIcon class="block h-5 w-5 text-white mr-1" />
                     Sửa
                   </router-link>
-                  <button @click="deleteCandidate(candidate.id)" class="btn btn-danger !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'destroy')">
-                    <XCircleIcon class="block h-6 w-6 text-white mr-1" />
+                  <button @click="deleteCandidate(candidate.id)" class="text-[14px] py-[7px] px-[10px] btn-danger !w-auto flex items-center" v-if="can(userPermissions, 'candidates', 'destroy')">
+                    <XCircleIcon class="block h-5 w-5 text-white mr-1" />
                     Xóa
                   </button>
                 </div>
@@ -531,8 +531,8 @@
             <VueMultiselect v-model="selectedJob" :options="jobs" :taggable="true" label="job_title" track-by="id" placeholder="Nhập từ khóa để tìm kiếm Job" :searchable="true" :loading="loadingJobs" @search-change="debouncedSearchJobs" @select="onJobChange"></VueMultiselect>
           </div>
           <div class="flex justify-end space-x-2">
-            <button @click="closeAssignJobPopup" class="btn btn-danger !w-auto">Hủy</button>
-            <button @click="assignJob" class="btn btn-primary !w-auto" :disabled="!selectedJob">Xác nhận</button>
+            <button @click="closeAssignJobPopup" class="text-[14px] py-[7px] px-[10px] btn-danger !w-auto">Hủy</button>
+            <button @click="assignJob" class="text-[14px] py-[7px] px-[10px] btn-primary !w-auto" :disabled="!selectedJob">Xác nhận</button>
           </div>
         </div>
       </div>
@@ -1164,7 +1164,7 @@ const openToggleAssignUserPopup = (candidateId) => { // Hiển thị Form
   const candidate = candidates.value.find((c) => c.id === candidateId)
   if (candidate) {
     selectedCandidateId.value = candidateId
-    selectedCandidateFullName.value = `${candidate.code} - ${candidate.full_name}`
+    selectedCandidateFullName.value = `${candidate.code} - ${candidate.full_name[lang.value]}`
   }
 
   // Cập nhật nhân viên đã có
@@ -1239,7 +1239,7 @@ const openAssignJobPopup = (candidateId) => {
   const candidate = candidates.value.find((c) => c.id === candidateId)
   if (candidate) {
     selectedCandidateId.value = candidateId
-    selectedCandidateFullName.value = `${candidate.code} - ${candidate.full_name}`
+    selectedCandidateFullName.value = `${candidate.code} - ${candidate.full_name[lang.value]}`
     showAssignJobPopup.value = true
     jobs.value = [] // Reset danh sách jobs khi mở popup
   }
@@ -1391,30 +1391,6 @@ const deleteCandidate = async (id) => {
     }
   }
 }
-
-// const onFileChange = (event, field) => {
-//   candidateForm.value[field] = event.target.files[0]
-// }
-
-// Chỉnh sửa Bản Ghi
-// const editCandidate = (candidate) => {
-//   selectedCandidate.value = candidate
-//   //selectedIndustryId.value = industries.value.find((c) => c.id == candidate.industry_id) || null
-//   //selectedIndustryId.value = candidate.industry_id || []
-//   //selectedIndustryId.value = candidate.industry_id[lang]?.map(item => item) || [];
-//   //selectedEducation.value = educations.value.find((c) => c.id == candidate.education) || null
-//   //selectedLanguage.value = languages.value.find((c) => c.id == candidate.language) || null
-//   selectedCurrentLocation.value = provinces.value.find((c) => c.id == candidate.current_location) || null
-//   // Lấy desired_locations từ quan hệ
-//   const desiredLocationIds = candidate.desired_locations ? candidate.desired_locations.map((loc) => loc.location_id) : []
-//   selectedDesiredLocation.value = provinces.value.filter((p) => desiredLocationIds.includes(p.id)) || []
-//   candidateForm.value = { ...candidate, file_cv: cloneDeep(candidate.file_cv), cv_no_contact: null, cv_with_contact: null }
-//   educations.value = allEducations.value.vi
-//   industries.value = allIndustries.value.vi
-//   languages.value = allLanguages.value.vi
-//   // currentExperienceSummary.value = candidate.experience_summary.vi
-//   showModal()
-// }
 
 const parseFromApi = (str) => {
   if (!str) return null

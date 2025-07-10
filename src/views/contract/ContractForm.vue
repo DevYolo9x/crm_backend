@@ -84,16 +84,16 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Gói sản phẩm</label>
           <table class="table-order text-sm w-full text-left rtl:text-right">
-            <thead class="text-white bg-primary dark:bg-gray-700 dark:text-gray-400">
+            <thead class=" bg-[#e5e5e5] dark:bg-gray-700 dark:text-gray-400">
               <tr>
-                <th>Sản phẩm</th>
-                <th>Giá</th>
-                <th>Số lượng</th>
-                <th>Giảm giá (VND)</th>
-                <th>Thuế (%)</th>
-                <th>Thành tiền (VND)</th>
-                <th>Ghi chú</th>
-                <th class="text-right">Thao tác</th>
+                <th class="font-medium">Sản phẩm</th>
+                <th class="font-medium">Giá</th>
+                <th class="font-medium">Số lượng</th>
+                <th class="font-medium">Giảm giá (VND)</th>
+                <th class="font-medium">Thuế (%)</th>
+                <th class="font-medium">Thành tiền (VND)</th>
+                <th class="font-medium">Ghi chú</th>
+                <th class="text-right font-medium">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -118,13 +118,13 @@
                   <input v-model="product.note" type="text" class="form-control" />
                 </td>
                 <td class="text-right">
-                  <button @click="removeProduct(index)" class="btn btn-danger !w-auto">Xóa</button>
+                  <button @click="removeProduct(index)" class="text-[14px] px-[10px] py-[7px] btn-danger !w-auto">Xóa</button>
                 </td>
               </tr>
             </tbody>
           </table>
           <div class="flex items-center justify-between mt-2">
-            <button type="button" @click="addProduct" class="btn btn-success !w-auto">Thêm sản phẩm</button>
+            <button type="button" @click="addProduct" class="text-[14px] px-[10px] py-[7px] btn-success !w-auto">Thêm sản phẩm</button>
           </div>
           <!-- Bảng tổng hợp -->
           <div class="mt-4">

@@ -116,21 +116,21 @@ onMounted(() => {
       <form @submit.prevent="submitForm">
         <div class="grid grid-cols-1 gap-4 mb-4">
           <div>
-            <label class="py-[2px] font-bold">
+            <label class="py-[2px] font-medium">
               Tiêu đề
               <span class="text-red-600">*</span>
             </label>
             <input v-model="form.title" type="text" class="form-control" />
           </div>
           <div class="flex flex-col">
-            <label class="py-[2px] font-bold">
+            <label class="py-[2px] font-medium">
               Quyền nhóm nhân viên
               <span class="text-red-600">*</span>
             </label>
-            <div v-if="config.modules" class="space-y-3">
+            <div v-if="config.modules" class="space-y-3 mt-3">
               <div v-for="(item, index) in permission" class="w-full grid grid-cols-12 items-center" :key="index">
                 <div class="col-span-4" v-if="item.children">
-                  <h2 class="mb-0 font-semibold">
+                  <h2 class="mb-0">
                     {{ config.modules[item.title] }}
                   </h2>
                 </div>
@@ -139,7 +139,7 @@ onMounted(() => {
                     <div v-for="child in item.children" :key="child.id" class="">
                       <div class="flex space-x-1 items-center" style="margin: 0px !important">
                         <input name="permission_id" type="checkbox" :id="`checkboxPrimary-${child.id}`" v-model="form.permission_id" :value="child.id" />
-                        <label class="cursor-pointer" :for="`checkboxPrimary-${child.id}`" style="font-weight: normal">
+                        <label class="cursor-pointer text-sm" :for="`checkboxPrimary-${child.id}`">
                           {{ config.actions[child.title] }}
                         </label>
                       </div>

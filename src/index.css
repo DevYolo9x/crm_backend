@@ -64,3 +64,13 @@
 .td {
     vertical-align: middle;
 }
+
+.multiselect,
+.multiselect__option,
+.multiselect__single,
+.multiselect__tags {
+  font-size: 14px !important;
+}
+.table-order th {
+    padding-block: 15px;
+}

@@ -152,42 +152,42 @@ onMounted(() => {
       <form @submit.prevent="submitForm">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div class="space-y-1.5">
-            <label class="py-[2px] font-bold">
+            <label class="py-[2px] font-medium text-sm">
               Tên đăng nhập
               <span class="text-red-600">*</span>
             </label>
             <input v-model="form.account" type="text" class="form-control" />
           </div>
           <div class="space-y-1.5">
-            <label class="py-[2px] font-bold">
+            <label class="py-[2px] font-medium text-sm">
               Mật khẩu
               <span class="text-red-600">*</span>
             </label>
             <input v-model="form.password" type="text" class="form-control" />
           </div>
           <div class="space-y-1.5">
-            <label class="py-[2px] font-bold">
+            <label class="py-[2px] font-medium text-sm">
               Nhóm nhân viên
               <span class="text-red-600">*</span>
             </label>
             <VueMultiselect @select="onRoleChange" v-model="role" :options="roles" placeholder="Nhóm nhân viên" :taggable="true" label="title" :searchable="true" track-by="id"></VueMultiselect>
           </div>
           <div class="space-y-1.5">
-            <label class="py-[2px] font-bold">
+            <label class="py-[2px] font-medium text-sm">
               Tên nhân viên
               <span class="text-red-600">*</span>
             </label>
             <input v-model="form.name" type="text" class="form-control" />
           </div>
           <div class="space-y-1.5">
-            <label class="py-[2px] font-bold">
+            <label class="py-[2px] font-medium text-sm">
               Số điện thoại
               <span class="text-red-600">*</span>
             </label>
             <input v-model="form.phone" type="text" class="form-control" />
           </div>
           <div class="space-y-1.5">
-            <label class="py-[2px] font-bold">
+            <label class="py-[2px] font-medium text-sm">
               Email
               <span class="text-red-600">*</span>
             </label>
@@ -196,23 +196,23 @@ onMounted(() => {
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div class="space-y-1.5">
-            <label class="py-[2px] font-bold">Giới tính</label>
+            <label class="py-[2px] font-medium text-sm">Giới tính</label>
             <select class="form-control" v-model="form.gender">
               <option value="Nam">Nam</option>
               <option value="Nữ">Nữ</option>
             </select>
           </div>
           <div class="space-y-1.5">
-            <label class="py-[2px] font-bold">Ngày sinh</label>
+            <label class="py-[2px] font-medium text-sm">Ngày sinh</label>
             <input class="form-control flatpickr" v-model="form.birthday" placeholder="Ngày sinh" />
           </div>
         </div>
         <div class="md:col-span-2 space-y-1.5 mb-4">
-          <label class="py-[2px] font-bold">Địa chỉ</label>
+          <label class="py-[2px] font-medium text-sm">Địa chỉ</label>
           <input v-model="form.address" type="text" class="form-control" />
         </div>
         <div class="md:col-span-2 space-y-1.5 mb-4">
-          <label class="py-[2px] font-bold">
+          <label class="py-[2px] font-medium text-sm">
             File đính kèm
             <a v-if="form.attachment_url" :href="form.attachment_url" target="_blank" class="underline text-blue-600">Xem</a>
           </label>

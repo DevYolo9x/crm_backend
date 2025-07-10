@@ -107,7 +107,7 @@
         <quill-editor ref="quill" :modules="modules" :toolbar="toolbar" v-model:content="form.additional_info" contentType="html" />
       </div>
 
-      <button type="submit" class="bg-primary text-white p-2 rounded">{{ isEditing ? 'Cập nhật' : 'Thêm mới' }}</button>
+      <button type="submit" class="text-[14px] py-[7px] px-[10px] bg-primary text-white p-2 rounded">{{ isEditing ? 'Cập nhật' : 'Thêm mới' }}</button>
     </form>
   </div>
 </template>

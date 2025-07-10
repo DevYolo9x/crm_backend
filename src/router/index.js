@@ -161,6 +161,9 @@ router.beforeEach(async (to, _, next) => {
         'roles.create': '/roles',
         'roles.update': '/roles',
         'permissions.create': '/permissions',
+        'Candidates': '/candidate',
+        'Candidates.update': '/candidate',
+        'Candidates.create': '/candidate',
     }
     const activeMenu = specialMenus[to.name] || to.path
     store.dispatch('sidebar/syncActiveMenuWithRoute', activeMenu)

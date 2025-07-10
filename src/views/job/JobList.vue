@@ -19,8 +19,8 @@
     <Loading :loading="loading" />
     <div class="flex items-center justify-between">
       <Title :title="route.meta.title" class="flex-1" />
-      <router-link :to="{ name: 'jobs.create' }" class="btn btn-success !w-auto flex items-center col-span-2 justify-center" v-if="can(userPermissions, 'jobs', 'create')">
-        <PlusIcon class="block h-6 w-6 text-white" aria-hidden="true" />
+      <router-link :to="{ name: 'jobs.create' }" class="text-[14px] py-[7px] px-[10px] btn-success !w-auto flex items-center col-span-2 justify-center" v-if="can(userPermissions, 'jobs', 'create')">
+        <PlusIcon class="block h-5 w-5 text-white" aria-hidden="true" />
         Thêm mới
       </router-link>
     </div>
@@ -85,17 +85,17 @@
     </div>
     <div>
       <table class="table-order text-sm w-full text-left rtl:text-right">
-        <thead class="text-white bg-primary dark:bg-gray-700 dark:text-gray-400">
+        <thead class=" bg-[#e5e5e5] dark:bg-gray-700 dark:text-gray-400">
           <tr class="">
-            <th class="">STT</th>
-            <th class="p-2">Khách hàng</th>
-            <th class="p-2">ID JOB</th>
-            <th class="p-2">Vị trí tuyển dụng</th>
-            <th class="p-2">Địa điểm làm việc</th>
-            <th class="p-2">Tình trạng</th>
-            <th class="p-2">Người tạo</th>
-            <th class="p-2">Người phụ trách</th>
-            <th class="p-2">Ngày tạo</th>
+            <th class="font-medium">STT</th>
+            <th class="p-2 font-medium">Khách hàng</th>
+            <th class="p-2 font-medium">ID JOB</th>
+            <th class="p-2 font-medium">Vị trí tuyển dụng</th>
+            <th class="p-2 font-medium">Địa điểm làm việc</th>
+            <th class="p-2 font-medium">Tình trạng</th>
+            <th class="p-2 font-medium">Người tạo</th>
+            <th class="p-2 font-medium">Người phụ trách</th>
+            <th class="p-2 font-medium">Ngày tạo</th>
             <th class="text-right" v-if="can(userPermissions, 'jobs', 'edit') || can(userPermissions, 'jobs', 'destroy')">Thao tác</th>
           </tr>
         </thead>
@@ -113,7 +113,7 @@
               </div>
             </td>
             <td class="p-2">
-              <span :style="{ backgroundColor: getStatusColor(job.status), color: '#fff' }" class="inline-block px-2 py-1 rounded">
+              <span :style="{ backgroundColor: getStatusColor(job.status), color: '#fff' }" class="inline-block px-2 py-1 rounded text-xs">
                 {{ job.status }}
               </span>
             </td>
@@ -128,30 +128,31 @@
             <td class="p-2">{{ job.created_at }}</td>
             <td v-if="can(userPermissions, 'jobs', 'edit') || can(userPermissions, 'jobs', 'destroy')" class="flex flex-col space-y-1 whitespace-nowrap">
               <div class="flex items-center space-x-1 justify-end">
-                <router-link :to="{ name: 'CandidateJobs', params: { id: job.id } }" class="btn btn-success !w-auto flex items-center" v-if="can(userPermissions, 'jobs', 'index')">
-                  <PlusIcon class="block h-6 w-6 text-white mr-1" />
+                <router-link :to="{ name: 'CandidateJobs', params: { id: job.id } }" class="text-[14px] py-[7px] px-[10px] btn-success !w-auto flex items-center" v-if="can(userPermissions, 'jobs', 'index')">
+                  <PlusIcon class="block h-5 w-5 text-white mr-1" />
                   Danh sách ứng viên
                 </router-link>
-                <button @click="showJob(job.id)" class="btn btn-warning !w-auto flex items-center">
-                  <EyeIcon class="block h-6 w-6 text-white mr-1" />
+                <button @click="showJob(job.id)" class="text-[14px] py-[7px] px-[10px] btn-warning !w-auto flex items-center">
+                  <EyeIcon class="block h-5 w-5 text-white mr-1" />
                   Xem
                 </button>
               </div>
               <div class="flex items-center space-x-1 justify-end">
-                <router-link :to="{ name: 'jobs.update', params: { id: job.id } }" class="btn btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'jobs', 'edit')">
-                  <PencilAltIcon class="block h-6 w-6 text-white mr-1" />
+                <button @click="downloadJob(job)" class="text-[14px] py-[7px] px-[10px] btn-success !w-auto flex items-center">
+                  <DownloadIcon class="block h-5 w-5 text-white mr-1" />
+                  Tải Job
+                </button>
+                <router-link :to="{ name: 'jobs.update', params: { id: job.id } }" class="text-[14px] py-[7px] px-[10px] btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'jobs', 'edit')">
+                  <PencilAltIcon class="block h-5 w-5 text-white mr-1" />
                   Sửa
                 </router-link>
-                <button @click="deleteJob(job.id)" class="btn btn-danger !w-auto flex items-center" v-if="can(userPermissions, 'jobs', 'destroy')">
-                  <XCircleIcon class="block h-6 w-6 text-white mr-1" />
+                <button @click="deleteJob(job.id)" class="text-[14px] py-[7px] px-[10px] btn-danger !w-auto flex items-center" v-if="can(userPermissions, 'jobs', 'destroy')">
+                  <XCircleIcon class="block h-5 w-5 text-white mr-1" />
                   Xóa
                 </button>
               </div>
               <div class="flex justify-end">
-                <button @click="downloadJob(job)" class="btn btn-success !w-auto flex items-center">
-                  <DownloadIcon class="block h-6 w-6 text-white mr-1" />
-                  Tải Job
-                </button>
+                
               </div>
             </td>
           </tr>

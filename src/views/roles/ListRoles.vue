@@ -120,8 +120,8 @@ watch(
         <div>
           <input type="text" class="form-control" placeholder="Nhập từ khóa tìm kiếm" v-model="formFilter.keyword" />
         </div>
-        <router-link :to="{ name: 'roles.create' }" class="btn btn-success !w-auto flex items-center">
-          <PlusIcon class="block h-6 w-6 text-white" aria-hidden="true" />
+        <router-link :to="{ name: 'roles.create' }" class="text-[14px] py-[7px] px-[10px] btn-success !w-auto flex items-center">
+          <PlusIcon class="block h-5 w-5 text-white" aria-hidden="true" />
           Thêm mới
         </router-link>
       </div>
@@ -129,12 +129,12 @@ watch(
     <div class="relative">
       <Loading :loading="loading" />
       <table class="table-order text-sm w-full text-left rtl:text-right">
-        <thead class="text-white bg-primary dark:bg-gray-700 dark:text-gray-400">
+        <thead class=" bg-[#e5e5e5] dark:bg-gray-700 dark:text-gray-400">
           <tr class="">
-            <th class="">STT</th>
-            <th class="">Nhóm nhân viên</th>
-            <th class="">Cập nhật mới nhất</th>
-            <th class="text-right">Thao tác</th>
+            <th class="font-medium">STT</th>
+            <th class="font-medium">Nhóm nhân viên</th>
+            <th class="font-medium">Cập nhật mới nhất</th>
+            <th class="text-right font-medium">Thao tác</th>
           </tr>
         </thead>
         <tbody>
@@ -149,13 +149,13 @@ watch(
                     name: 'roles.update',
                     params: { id: role.id },
                   }"
-                  class="btn btn-primary !w-auto flex items-center"
+                  class="text-[14px] py-[7px] px-[10px] btn-primary !w-auto flex items-center"
                 >
-                  <PencilAltIcon class="block h-6 w-6 text-white mr-1" />
+                  <PencilAltIcon class="block h-5 w-5 text-white mr-1" />
                   Sửa
                 </router-link>
-                <button @click="deleteRole(role.id)" class="btn btn-danger !w-auto flex items-center">
-                  <XCircleIcon class="block h-6 w-6 text-white mr-1" />
+                <button @click="deleteRole(role.id)" class="text-[14px] py-[7px] px-[10px] btn-danger !w-auto flex items-center">
+                  <XCircleIcon class="block h-5 w-5 text-white mr-1" />
                   Xóa
                 </button>
               </div>

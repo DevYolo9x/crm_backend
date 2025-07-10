@@ -23,8 +23,8 @@
     </nav>
     <Loading :loading="loading" />
     <div class="flex items-center space-x-1">
-      <router-link :to="{ name: 'ContractList' }" class="btn btn-danger !w-auto flex items-center">
-        <ArrowLeftIcon class="block h-6 w-6 text-white mr-1" />
+      <router-link :to="{ name: 'ContractList' }" class="text-[14px] py-[7px] px-[10px] btn-danger !w-auto flex items-center mr-3">
+        <ArrowLeftIcon class="block h-4 w-4 text-white mr-1" />
         Quay lại
       </router-link>
       <Title :title="`Chi tiết hợp đồng: ${contract?.name || ''}`" />
@@ -75,20 +75,20 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Ghi chú hợp đồng, lịch sử chuyển khoản, job order</label>
-          <div class="bg-gray-200 p-2" v-html="contract.notes"></div>
+          <div class="bg-gray-200 p-2 text-sm" v-html="contract.notes"></div>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Gói sản phẩm</label>
           <table class="table-order text-sm w-full text-left rtl:text-right">
-            <thead class="text-white bg-primary dark:bg-gray-700 dark:text-gray-400">
+            <thead class=" bg-[#e5e5e5] dark:bg-gray-700 dark:text-gray-400">
               <tr>
-                <th>Sản phẩm</th>
-                <th>Giá</th>
-                <th>Số lượng</th>
-                <th>Giảm giá (VND)</th>
-                <th>Thuế</th>
-                <th>Thành tiền (VND)</th>
-                <th>Ghi chú</th>
+                <th class="font-medium">Sản phẩm</th>
+                <th class="font-medium">Giá</th>
+                <th class="font-medium">Số lượng</th>
+                <th class="font-medium">Giảm giá (VND)</th>
+                <th class="font-medium">Thuế</th>
+                <th class="font-medium">Thành tiền (VND)</th>
+                <th class="font-medium">Ghi chú</th>
               </tr>
             </thead>
             <tbody>

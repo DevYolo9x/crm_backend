@@ -21,8 +21,8 @@
       <div class="flex items-center space-x-1">
         <div class="flex space-x-1">
           <input type="text" class="form-control flex-1" placeholder="Nhập từ khóa tìm kiếm" v-model="formFilter.keyword" />
-          <a href="" v-if="can(userPermissions, 'industries', 'create')" class="btn btn-success !w-auto flex items-center" @click.prevent="showModal">
-            <PlusIcon class="block h-6 w-6 text-white" aria-hidden="true" />
+          <a href="" v-if="can(userPermissions, 'industries', 'create')" class="text-[14px] py-[7px] px-[10px] btn-success !w-auto flex items-center" @click.prevent="showModal">
+            <PlusIcon class="block h-5 w-5 text-white" aria-hidden="true" />
             Thêm mới
           </a>
         </div>
@@ -30,29 +30,29 @@
     </div>
     <div>
       <table class="table-order text-sm w-full text-left rtl:text-right">
-        <thead class="text-white bg-primary dark:bg-gray-700 dark:text-gray-400">
+        <thead class=" bg-[#e5e5e5] dark:bg-gray-700 dark:text-gray-400">
           <tr>
-            <th>STT</th>
-            <th>Tiêu đề</th>
-            <th>Ngày tạo</th>
-            <th>Người tạo</th>
+            <th class="font-medium">STT</th>
+            <th class="font-medium">Tiêu đề</th>
+            <th class="font-medium">Ngày tạo</th>
+            <th class="font-medium">Người tạo</th>
             <th class="text-right" v-if="can(userPermissions, 'industries', 'edit') || can(userPermissions, 'industries', 'destroy')">Thao tác</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(industry, key) in industries" :key="industry.id" class="border-b hover:bg-gray-100">
             <td>{{ key + 1 }}</td>
-            <td class="font-bold">{{ industry.title.vi }}</td>
+            <td class="font-medium">{{ industry.title.vi }}</td>
             <td>{{ industry.created_at }}</td>
             <td>{{ industry.createBy }}</td>
             <td v-if="can(userPermissions, 'industries', 'edit') || can(userPermissions, 'industries', 'destroy')">
               <div class="flex items-center space-x-1 justify-end">
-                <button @click="editIndustry(industry)" class="btn btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'industries', 'edit')">
-                  <PencilAltIcon class="block h-6 w-6 text-white mr-1" />
+                <button @click="editIndustry(industry)" class="text-[14px] py-[7px] px-[10px] btn-primary !w-auto flex items-center" v-if="can(userPermissions, 'industries', 'edit')">
+                  <PencilAltIcon class="block h-5 w-5 text-white mr-1" />
                   Sửa
                 </button>
-                <button @click="deleteIndustry(industry.id)" class="btn btn-danger !w-auto flex items-center" v-if="can(userPermissions, 'industries', 'destroy')">
-                  <XCircleIcon class="block h-6 w-6 text-white mr-1" />
+                <button @click="deleteIndustry(industry.id)" class="text-[14px] py-[7px] px-[10px] btn-danger !w-auto flex items-center" v-if="can(userPermissions, 'industries', 'destroy')">
+                  <XCircleIcon class="block h-5 w-5 text-white mr-1" />
                   Xóa
                 </button>
               </div>
@@ -97,10 +97,10 @@
           </div>
           <!-- Tabs hoặc lựa chọn ngôn ngữ -->
           <!-- Debug -->
-          <pre>{{ industryForm }}</pre>
+          <!-- <pre>{{ industryForm }}</pre> -->
           <div class="flex justify-end space-x-2">
-            <button @click="closeModal" class="btn btn-danger !w-auto">Hủy</button>
-            <button type="submit" class="btn btn-primary !w-auto">{{ selectedIndustry ? 'Cập nhật' : 'Thêm mới' }}</button>
+            <button @click="closeModal" class="text-[14px] py-[7px] px-[10px] btn-danger !w-auto">Hủy</button>
+            <button type="submit" class="text-[14px] py-[7px] px-[10px] btn-primary !w-auto">{{ selectedIndustry ? 'Cập nhật' : 'Thêm mới' }}</button>
           </div>
         </form>
       </div>
