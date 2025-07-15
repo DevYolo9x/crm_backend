@@ -46,8 +46,9 @@
                 <div class="grid grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                      Họ và tên ({{ lang.toUpperCase() }})
+                      Họ và tên
                       <span class="text-red-600">*</span>
+                      <span v-if="getLangErrorMessage('full_name')" class="text-red-600 text-[12px] ml-1">{{ getLangErrorMessage('full_name') }}</span>
                     </label>
                     <input v-model="currentFullName" type="text" @keydown.enter.prevent class="form-control" />
                   </div>
@@ -55,6 +56,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                       Ngày sinh
                       <span class="text-red-600">*</span>
+                      <span v-if="errorsValidate['birthday']" class="text-red-600 text-[12px] ml-1">({{ errorsValidate['birthday'][0] }})</span>
                     </label>
                     <Datepicker v-model="currentBirthday" class="form-control" :format="formatDate" />
                   </div>
@@ -62,6 +64,8 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                       Giới tính
                       <span class="text-red-600">*</span>
+                      <span v-if="getLangErrorMessage('gender')" class="text-red-600 text-[12px] ml-1">{{ getLangErrorMessage('gender') }}</span>
+                      
                     </label>
                     <input v-model="currentGender" type="text" @keydown.enter.prevent class="form-control" />
                   </div>
@@ -70,6 +74,7 @@
                       Số điện thoại
                       <span class="text-red-600">*</span>
                       <span v-if="validationErrors.phoneExists" class="text-red-600 text-[12px] ml-1">{{ validationMessageErrors.phoneExists }}</span>
+                      <span v-if="errorsValidate['phone']" class="text-red-600 text-[12px] ml-1">({{ errorsValidate['phone'][0] }})</span>
                     </label>
                     <input v-model="currentPhone" type="text" @keydown.enter.prevent class="form-control" />
                   </div>
@@ -78,6 +83,7 @@
                       Email
                       <span class="text-red-600">*</span>
                       <span v-if="validationErrors.emailExists" class="text-red-600 text-[12px] ml-1">{{ validationMessageErrors.emailExists }}</span>
+                      <span v-if="errorsValidate['email']" class="text-red-600 text-[12px] ml-1">({{ errorsValidate['email'][0] }})</span>
                     </label>
                     <input v-model="currentEmail" type="email" @keydown.enter.prevent class="form-control" />
                   </div>
@@ -85,6 +91,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                       Nhóm ngành nghề
                       <span class="text-red-600">*</span>
+                      <span v-if="getLangErrorMessage('industry_id')" class="text-red-600 text-[12px] ml-1">{{ getLangErrorMessage('industry_id') }}</span>
                     </label>
                     <VueMultiselect v-model="currentIndustry" :multiple="true" :options="industries" :taggable="true" label="title" :searchable="true" track-by="id" placeholder="Chọn nhóm ngành nghề"></VueMultiselect>
                   </div>
@@ -100,6 +107,8 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                       Chỗ ở hiện tại
                       <span class="text-red-600">*</span>
+                      <span v-if="errorsValidate['location']" class="text-red-600 text-[12px] ml-1">({{ errorsValidate['location'][0] }})</span>
+                      
                     </label>
                     <VueMultiselect v-model="currentLocation" :options="provinces" :taggable="true" label="name" :searchable="true" track-by="id" @select="onCurrentLocationChange" placeholder="Chọn chỗ ở hiện tại"></VueMultiselect>
                   </div>
@@ -107,6 +116,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                       Khu vực mong muốn làm việc
                       <span class="text-red-600">*</span>
+                      <span v-if="errorsValidate['desired_location']" class="text-red-600 text-[12px] ml-1">({{ errorsValidate['desired_location'][0] }})</span>
                     </label>
                     <VueMultiselect v-model="currentDesiredLocation" :options="provinces" :taggable="true" label="name" :searchable="true" track-by="id" multiple placeholder="Chọn"></VueMultiselect>
                   </div>
@@ -252,7 +262,7 @@
                 <!-- Điểm mạnh -->
                 <div class="mt-3">
                   <label class="block text-sm font-medium text-gray-700 mb-1">Điểm mạnh</label>
-                  <quill-editor ref="quill" :modules="modules" :toolbar="toolbar" v-model:content="currentStrength" contentType="html" :key="lang" />
+                  <quill-editor ref="quillStrength" :modules="modules" :toolbar="toolbar" @ready="onQuillReady" v-model:content="currentStrength" contentType="html" />
                 </div>
 
                 <!-- Kinh nghiệm làm việc -->
@@ -297,7 +307,7 @@
                     </div>
                   </div>
                   <div class="mt-3">
-                    <quill-editor ref="quill" :modules="modules" :toolbar="toolbar" v-model:content="currentWorkExperience.description" contentType="html" :key="lang" />
+                    <!-- <quill-editor ref="quill" :modules="modules" :toolbar="toolbar" v-model:content="currentWorkExperience.description" contentType="html" :key="lang" /> -->
                   </div>
 
                   <!-- Nếu chưa chọn gì: Thêm -->
@@ -440,6 +450,7 @@ const Languages = computed(() => store.getters['languages/languages'] || {})
 //const lang = computed(() => store.getters['languages/languageCode'] || 'vi')
 const userPermissions = computed(() => store.getters['auth/permissions'] || {})
 const quill = ref(null)
+const quillRef = ref(null)
 const modules = { module: BlotFormatter }
 const toolbar = [[{ header: [1, 2, 3, 4, 5, 6, false] }], [{ size: ['small', false, 'large', 'huge'] }], ['bold', 'italic', 'underline', 'strike'], ['blockquote', 'code-block'], [{ align: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ color: [] }, { background: [] }], [{ font: [] }], ['link', 'image', 'video'], ['clean']]
 
@@ -465,9 +476,9 @@ const selectedCandidate = ref(null)
 const preview = ref(null)
 const defaultAvatar = ref('') // ảnh fallback
 const avatar = ref({}) // ảnh fallback
-const currentPhone = ref('')
-const currentEmail = ref('')
-const currentBirthday = ref('')
+const currentPhone = ref(null)
+const currentEmail = ref(null)
+const currentBirthday = ref(null)
 const currentLocation = ref(null)
 const location = ref(null)
 const currentIndustry = ref([])
@@ -490,6 +501,8 @@ const currentFullName = ref('');
 const fullName = ref({})
 const cv_no_contact = ref({})
 const cv_with_contact = ref({})
+const errorsValidate = ref({})
+const quillInstance = ref(null)
 const currentTimeEducation = ref({
   time: '',
   school: '',
@@ -507,15 +520,32 @@ const currentWorkExperience = ref({
 const selectedIndexWorkExperience = ref(null) // Giá trị bản ghỉ thứ {n} để cập nhật - Kinh nghiệm làm việc
 const selectedIndexTimeEducation = ref(null) // Giá trị bản ghỉ thứ {n} để cập nhật - Quá trình học tập
 const selectedIndexSkill = ref(null) // Giá trị bản ghỉ thứ {n} để cập nhật - Quá trình học tập
-
+const quillStrength = ref(null)
 
 const onDesiredLocationChange = () => {
   desiredLocation.value = currentDesiredLocation.value ? currentDesiredLocation.value.map((loc) => loc.id) : []
 }
-
 const onCurrentLocationChange = () => {
   location.value = currentLocation.value?.id || 0
 }
+
+const onQuillReady = (editor) => {
+  quillInstance.value = editor
+}
+
+/* START: Validate lỗi vào các trường input */
+function hasError(field) {
+  return !!errorsValidate.value[`${field}.${lang.value}`]
+}
+const getErrorMessage = (field) =>
+  errorsValidate.value?.[field]?.[0] ? `(${errorsValidate.value[field][0]})` : '';
+
+const getLangErrorMessage = (field) => {
+  const key = `${field}.${lang.value}`;
+  const msg = errorsValidate.value?.[key]?.[0];
+  return msg ? `(${msg})` : '';
+};
+/* START: Validate lỗi vào các trường input */
 
 /* START: Theo dõi sự thay đổi của các trường */
 watch(currentStrength, (val) => {
@@ -559,8 +589,8 @@ watch(currentGender, (newValue) => {
 /* END: Theo dõi sự thay đổi của các trường */
 
 /* START: Khi thay đổi ngôn ngữ tab */
-watch(lang, (newLang) => {
-  currentStrength.value = strength.value[newLang]
+watch(lang, async (newLang) => {
+  //currentStrength.value = strength.value[newLang]
   currentFullName.value = fullName.value[newLang]
   currentGender.value = gender.value[newLang]
 
@@ -571,6 +601,17 @@ watch(lang, (newLang) => {
   currentIndustry.value = industry.value[newLang]
   currentEducation.value = educationList.value[newLang]
   currentLanguage.value = languageList.value[newLang]
+
+  // ✅ Nếu muốn update trực tiếp nội dung editor mà không cần re-render
+  const html = strength.value[newLang] || ''
+  currentStrength.value = html
+
+  await nextTick()
+  const quill = quillStrength.value?.getQuill()
+  if (quill) {
+    const delta = quill.clipboard.convert(html)
+    quill.setContents(delta)
+  }
 })
 /* END: Khi thay đổi ngôn ngữ tab */
 
@@ -882,7 +923,7 @@ const fetchShowJob = async () => {
 
     // Ngày sinh
     currentBirthday.value = parseFromApi(clone?.birthday)
-    formattedBirthday.value = clone?.birthday
+    //formattedBirthday.value = clone?.birthday
 
     // Khu vực mong muốn làm việc
     const desiredLocationIds = clone?.desired_locations?.map(loc => loc.location_id) || []
@@ -922,6 +963,7 @@ const handleSubmit = async () => {
     formData.append('phone', currentPhone.value || '');
     formData.append('birthday', formattedBirthday.value || '');
     formData.append('email', currentEmail.value || '');
+    formData.append('location', currentLocation.value || '');
     // formData.append('language_other', language_other.value || '');
     formData.append('current_location', location.value || 0);
     formData.append('desired_location', JSON.stringify(desiredLocation.value));
@@ -936,7 +978,11 @@ const handleSubmit = async () => {
     formData.append('time_education', JSON.stringify(timeEducation.value));
     formData.append('skills', JSON.stringify(skills.value));
     formData.append('work_experience', JSON.stringify(workExperience.value));
-    formData.append('gender', JSON.stringify(gender.value));
+    //formData.append('gender', (gender.value));
+
+    Object.entries(gender.value).forEach(([lang, value]) => {
+      formData.append(`gender[${lang}]`, value);
+    });
 
 
     // Thêm file cv
@@ -958,10 +1004,17 @@ const handleSubmit = async () => {
     }
 
     const data = await store.dispatch(action, formData)
+
+    if (data.errors) {
+      errorsValidate.value = data.errors; // lưu lỗi để hiển thị
+      errorsValidate.value = data.errors;
+      console.log(errorsValidate.value)
+      return; // không chuyển trang
+    }
     toastr.success(`${data.message}`)
     router.push({ name: 'Candidates' })
   } catch (error) {
-    console.log(error)
+    console.log('Errors: ', error)
     handleApiError(error)
   } finally {
     loading.value = false
@@ -999,7 +1052,6 @@ const checkExists = async () => {
 }
 const debouncedCheck = debounce(() => {
   checkExists()
-  console.log(123)
 }, 500)
 
 const validationErrors = reactive({

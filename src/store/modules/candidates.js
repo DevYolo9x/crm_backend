@@ -106,9 +106,12 @@ export default {
             try {
                 console.log(payload)
                 const { data } = await axiosInstance.post('candidates', payload);
-                commit('addCandidates', data.candidate);
+                //commit('addCandidates', data.candidate);
                 return data;
             } catch (error) {
+                if (error.response?.status === 422) {
+                    return error.response.data; // ✅ Trả về lỗi để component xử lý
+                }
                 throw error;
             }
         },
