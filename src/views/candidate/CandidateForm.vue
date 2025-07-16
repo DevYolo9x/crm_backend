@@ -550,6 +550,8 @@ const getLangErrorMessage = (field) => {
 /* START: Theo dõi sự thay đổi của các trường */
 watch(currentStrength, (val) => {
   strength.value[lang.value] = val
+  console.log(strength.value)
+
 })
 
 watch(currentLanguage, (val) => {
@@ -590,7 +592,7 @@ watch(currentGender, (newValue) => {
 
 /* START: Khi thay đổi ngôn ngữ tab */
 watch(lang, async (newLang) => {
-  //currentStrength.value = strength.value[newLang]
+  currentStrength.value = strength.value[newLang]
   currentFullName.value = fullName.value[newLang]
   currentGender.value = gender.value[newLang]
 
@@ -602,16 +604,8 @@ watch(lang, async (newLang) => {
   currentEducation.value = educationList.value[newLang]
   currentLanguage.value = languageList.value[newLang]
 
-  // ✅ Nếu muốn update trực tiếp nội dung editor mà không cần re-render
-  const html = strength.value[newLang] || ''
-  currentStrength.value = html
+  console.log(currentStrength.value)
 
-  await nextTick()
-  const quill = quillStrength.value?.getQuill()
-  if (quill) {
-    const delta = quill.clipboard.convert(html)
-    quill.setContents(delta)
-  }
 })
 /* END: Khi thay đổi ngôn ngữ tab */
 
