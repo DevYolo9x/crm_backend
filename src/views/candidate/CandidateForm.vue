@@ -262,7 +262,7 @@
                 <!-- Điểm mạnh -->
                 <div class="mt-3">
                   <label class="block text-sm font-medium text-gray-700 mb-1">Điểm mạnh</label>
-                  <quill-editor ref="quillStrength" :modules="modules" :toolbar="toolbar" @ready="onQuillReady" v-model:content="currentStrength" contentType="html" />
+                  <div ref="editorRef" style="height: 300px;" />
                 </div>
 
                 <!-- Kinh nghiệm làm việc -->
@@ -308,6 +308,7 @@
                   </div>
                   <div class="mt-3">
                     <!-- <quill-editor ref="quill" :modules="modules" :toolbar="toolbar" v-model:content="currentWorkExperience.description" contentType="html" :key="lang" /> -->
+                    <div ref="editorRefExp" style="height: 300px;" />
                   </div>
 
                   <!-- Nếu chưa chọn gì: Thêm -->
@@ -439,9 +440,9 @@ import Title from '../../components/Title.vue'
 import Loading from '../../components/Loading.vue'
 import { handleApiError } from '../../helpers/apiErrorHandler'
 import { useToastr } from '../../plugins/toastr'
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import Quill from 'quill'
 import BlotFormatter from 'quill-blot-formatter'
+import 'quill/dist/quill.snow.css'
 import VueMultiselect from 'vue-multiselect'
 import axiosInstance from '../../axios'
 import { can } from '../../helpers/permissions' // Import the can helper
@@ -451,9 +452,10 @@ const Languages = computed(() => store.getters['languages/languages'] || {})
 const userPermissions = computed(() => store.getters['auth/permissions'] || {})
 const quill = ref(null)
 const quillRef = ref(null)
-const modules = { module: BlotFormatter }
 const toolbar = [[{ header: [1, 2, 3, 4, 5, 6, false] }], [{ size: ['small', false, 'large', 'huge'] }], ['bold', 'italic', 'underline', 'strike'], ['blockquote', 'code-block'], [{ align: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ color: [] }, { background: [] }], [{ font: [] }], ['link', 'image', 'video'], ['clean']]
-
+const modules = {
+  toolbar, // your toolbar
+}
 const toastr = useToastr()
 const route = useRoute()
 const store = useStore()
@@ -494,6 +496,7 @@ const currentDesiredLocation = ref([])
 const desiredLocation = ref([])
 const currentLanguage = ref({})
 const currentStrength = ref('')
+const quillReady = ref(false)
 const strength = ref({})
 const id = route.params.id
 const timeEducation = ref({})
@@ -503,6 +506,9 @@ const cv_no_contact = ref({})
 const cv_with_contact = ref({})
 const errorsValidate = ref({})
 const quillInstance = ref(null)
+const quillInstanceExp = ref(null)
+const editorRef  = ref(null)
+const editorRefExp  = ref(null)
 const currentTimeEducation = ref({
   time: '',
   school: '',
@@ -529,8 +535,16 @@ const onCurrentLocationChange = () => {
   location.value = currentLocation.value?.id || 0
 }
 
-const onQuillReady = (editor) => {
-  quillInstance.value = editor
+const onQuillReady = (quill) => {
+  if (typeof window !== 'undefined') {
+    // An toàn trước khi gọi BlotFormatter
+    setTimeout(() => {
+      const container = quill.root?.parentElement
+      if (container) {
+        quill.getModule('blotFormatter') // hoặc custom init
+      }
+    }, 10000)
+  }
 }
 
 /* START: Validate lỗi vào các trường input */
@@ -550,8 +564,6 @@ const getLangErrorMessage = (field) => {
 /* START: Theo dõi sự thay đổi của các trường */
 watch(currentStrength, (val) => {
   strength.value[lang.value] = val
-  console.log(strength.value)
-
 })
 
 watch(currentLanguage, (val) => {
@@ -604,7 +616,9 @@ watch(lang, async (newLang) => {
   currentEducation.value = educationList.value[newLang]
   currentLanguage.value = languageList.value[newLang]
 
-  console.log(currentStrength.value)
+  if (quillInstance.value) {
+    quillInstance.value.root.innerHTML = strength.value[newLang] || ''
+  }
 
 })
 /* END: Khi thay đổi ngôn ngữ tab */
@@ -765,10 +779,14 @@ const editItemExperience = (index) => { // Chỉnh sửa
   selectedIndexWorkExperience.value = index;
   if (Array.isArray(list) && list[index]) {
     currentWorkExperience.value = { ...list[index] };
+
+    // Cập nhật vào editor của kinh nghiệm
+    quillInstanceExp.value.root.innerHTML = list[index].description || ''
   }
 };
 
 const existWorkExperience = () => {
+  quillInstanceExp.value.root.innerHTML = ''
   currentWorkExperience.value = {description: '<p><br></p>'}; // Reset form
   selectedIndexWorkExperience.value = null // Reset lại chọn cập nhật kinh nghiệm làm việc
 }
@@ -779,6 +797,7 @@ const updateWorkExperience = () => { // Cập nhật vào mạng Candidate
 
   if (Array.isArray(experiences) && index !== null && index !== '' && experiences[index]) {
     experiences[index] = { ...currentWorkExperience.value }; // spread để tránh liên kết tham chiếu
+    experiences[index].description = quillInstanceExp.value.root.innerHTML
     existWorkExperience()
   } else {
     console.warn('Không thể cập nhật: dữ liệu hoặc index không hợp lệ');
@@ -801,7 +820,7 @@ const addWorkExperience = () => { // Thêm item kinh nghệm làm việc và m�
       time: currentWorkExperience.value.time,
       company: currentWorkExperience.value.company,
       position: currentWorkExperience.value.position,
-      description: currentWorkExperience.value.description
+      description: quillInstanceExp.value.root.innerHTML
     });
 
     // Reset nếu muốn
@@ -1073,6 +1092,30 @@ onMounted(async () => {
     store.dispatch('candidates/fetchConfigCandidate'),
     fetchShowJob(),
   ])
+
+  // Khởi tao editor: ĐiểM mạnh
+  quillInstance.value = new Quill(editorRef.value, {
+    theme: 'snow',
+    modules: {
+      toolbar,
+    },
+  })
+  quillInstance.value.root.innerHTML = strength.value[lang.value] || ''
+  quillInstance.value.on('text-change', () => {
+    strength.value[lang.value] = quillInstance.value.root.innerHTML
+  })
+  
+  // Khởi tạo editor: Kinh nghiệm
+  quillInstanceExp.value = new Quill(editorRefExp.value, {
+    theme: 'snow',
+    modules: {
+      toolbar,
+    },
+  })
+  // quillInstanceExp.value.root.innerHTML = strength.value[lang.value] || ''
+  // quillInstanceExp.value.on('text-change', () => {
+  //   strength.value[lang.value] = quillInstanceExp.value.root.innerHTML
+  // })
 
   if (!route.params.id) {
     // Gán dữ liệu mặc định
