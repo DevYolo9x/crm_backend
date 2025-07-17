@@ -708,7 +708,7 @@ const formattedBirthday = computed(() =>
 
 // Hiển thị danh sách ngành nghề
 const renderIndustries = (list) => {
-  return list?.map(item => `<p class="p-1 rounded-sm btn-success text-xs">${item.title}</p>`).join('') || ''
+  return list?.map(item => `<span class="p-1 rounded-sm border border-green-300 bg-green-100 text-green-800 text-xs">${item.title}</span>`).join('') || ''
 }
 
 /* Chỉnh sửa các bản ghi: Kinh nghệm */

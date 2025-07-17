@@ -107,20 +107,24 @@
             <td class="p-2">{{ job.position }}</td>
             <td class="p-2 w-[200px]">
               <div class="flex flex-wrap gap-1">
-                <div v-for="location in job.locations" :key="location.id" class="p-1 rounded-sm btn-danger text-xs">
+                <div v-for="location in job.locations" :key="location.id" class="p-1 rounded-sm border border-red-300 bg-red-100 text-red-800 text-xs">
                   {{ location.name }}
                 </div>
               </div>
             </td>
             <td class="p-2">
-              <span :style="{ backgroundColor: getStatusColor(job.status), color: '#fff' }" class="inline-block px-2 py-1 rounded text-xs">
+              <!-- <span :style="{ backgroundColor: getStatusColor(job.status), color: '#fff' }" class="inline-block px-2 py-1 rounded text-xs">
+                {{ job.status }}
+              </span> -->
+              
+              <span :class="getStatusClass(job.status)" class="inline-block px-2 py-1 rounded text-xs">
                 {{ job.status }}
               </span>
             </td>
             <td class="p-2">{{ `${job.user?.code}-${job.user?.name}` || '-' }}</td>
             <td class="p-2 w-[200px]">
               <div class="flex flex-wrap gap-1">
-                <div v-for="user in job.users" :key="user.id" class="p-1 rounded-sm btn-success text-xs">
+                <div v-for="user in job.users" :key="user.id" class="p-1 rounded-sm border border-green-300 bg-green-100 text-green-800 text-xs">
                   {{ user.name }}
                 </div>
               </div>
@@ -128,7 +132,7 @@
             <td class="p-2">{{ job.created_at }}</td>
             <td v-if="can(userPermissions, 'jobs', 'edit') || can(userPermissions, 'jobs', 'destroy')" class="flex flex-col space-y-1 whitespace-nowrap">
               <div class="flex items-center space-x-1 justify-end">
-                <router-link :to="{ name: 'CandidateJobs', params: { id: job.id } }" class="text-[14px] py-[7px] px-[10px] btn-success !w-auto flex items-center" v-if="can(userPermissions, 'jobs', 'index')">
+                <router-link :to="{ name: 'CandidateJobs', params: { id: job.id } }" class="text-[14px] py-[7px] px-[10px] bg-black text-white !w-auto flex items-center" v-if="can(userPermissions, 'jobs', 'index')">
                   <PlusIcon class="block h-5 w-5 text-white mr-1" />
                   Danh sách ứng viên
                 </router-link>
@@ -293,6 +297,21 @@ const closeModal = () => {
 const getStatusColor = (statusId) => {
   const status = statuses.value.find((s) => s.id === statusId)
   return status ? status.color : '#000000' // Mặc định đen nếu không tìm thấy
+}
+
+const getStatusClass = (status) => {
+  switch (status) {
+    case 'Pending':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'Open':
+      return 'bg-blue-100 text-blue-800';
+    case 'Closed':
+      return 'bg-gray-100 text-gray-800';
+    case 'Urgent':
+      return 'bg-red-100 text-red-800';
+    default:
+      return 'bg-gray-100 text-gray-800'; // fallback
+  }
 }
 
 const currentPage = ref(1)

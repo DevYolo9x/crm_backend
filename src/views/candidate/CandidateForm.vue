@@ -392,7 +392,7 @@
                     </div>
                   </div>
                   <p class="font-normal mt-3 text-[12px] text-red-600">* Dung lượng File CV không có thông tin liên hệ không quá 10MB</p>
-                  <button @click.prevent="downloadCandidateCV(lang)" class="!w-auto btn-success flex items-center mt-3 px-2 py-1 rounded-[4px] text-[13px]">
+                  <button @click.prevent="downloadCandidateCV(lang)" v-if="(!selectedCandidate) || selectedCandidate.permission_update == true" class="!w-auto btn-success flex items-center mt-3 px-2 py-1 rounded-[4px] text-[13px]">
                     <DownloadIcon class="block h-6 w-6 text-white mr-1" />
                     Xuất file
                   </button>
@@ -434,6 +434,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { cloneDeep } from 'lodash'
 import draggable from 'vuedraggable'
 import Datepicker from 'vue3-datepicker'
+import fallbackAvatar from '../../assets/avatar-default.jpg'
 
 import Swal from 'sweetalert2'
 import Title from '../../components/Title.vue'
@@ -476,7 +477,7 @@ const loading = ref(false)
 const selectedCandidate = ref(null)
 
 const preview = ref(null)
-const defaultAvatar = ref('') // ảnh fallback
+const defaultAvatar = ref(fallbackAvatar) // ảnh fallback
 const avatar = ref({}) // ảnh fallback
 const currentPhone = ref(null)
 const currentEmail = ref(null)
@@ -1112,10 +1113,6 @@ onMounted(async () => {
       toolbar,
     },
   })
-  // quillInstanceExp.value.root.innerHTML = strength.value[lang.value] || ''
-  // quillInstanceExp.value.on('text-change', () => {
-  //   strength.value[lang.value] = quillInstanceExp.value.root.innerHTML
-  // })
 
   if (!route.params.id) {
     // Gán dữ liệu mặc định
