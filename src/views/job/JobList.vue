@@ -89,7 +89,7 @@
           <tr class="">
             <th class="font-medium">STT</th>
             <th class="p-2 font-medium">Khách hàng</th>
-            <th class="p-2 font-medium">ID JOB</th>
+            <th class="p-2 font-medium">Tiêu đề JOB</th>
             <th class="p-2 font-medium">Vị trí tuyển dụng</th>
             <th class="p-2 font-medium">Địa điểm làm việc</th>
             <th class="p-2 font-medium">Tình trạng</th>

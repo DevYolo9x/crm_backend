@@ -572,8 +572,8 @@ watch(currentLanguage, (val) => {
 })
 
 watch(currentIndustry, (val) => {
-  const selectedIds = val.map(i => i.id)
-  // Duyệt qua tất cả ngôn ngữ và đồng bộ theo ID
+  const selectedIds = Array.isArray(val) ? val.map(i => i.id) : []
+
   const synced = {}
   for (const locale in allIndustries.value) {
     const options = allIndustries.value[locale] || []
